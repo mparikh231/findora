@@ -57,6 +57,13 @@
       "when": 1761896873829,
       "tag": "0007_sloppy_owl",
       "breakpoints": true
+    },
+    {
+      "idx": 8,
+      "version": "7",
+      "when": 1762433929789,
+      "tag": "0008_daffy_otto_octavius",
+      "breakpoints": true
     }
   ]
 }

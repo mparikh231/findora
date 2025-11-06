@@ -19,7 +19,7 @@ export const categories = pgTable("categories", {
     id: integer("id").primaryKey().generatedAlwaysAsIdentity(),
     name: text("name").notNull().unique(),
     description: text("description"),
-    parentCategoryId: integer("parent_category_id").references(() => categories.id).default(0),
+    parentCategoryId: integer("parent_category_id").default(0),
     createdAt: timestamp("created_at").defaultNow().notNull(),
 });
 
