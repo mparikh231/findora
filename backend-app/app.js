@@ -11,6 +11,7 @@ const profileRoutes = require('./routes/profile.routes');
 const listingsRoutes = require('./routes/listings.routes');
 const statesRoutes = require('./routes/states.routes');
 const citiesRoutes = require('./routes/cities.routes');
+const categoriesRoutes = require('./routes/categories.routes');
  
 var app = express();
 
@@ -26,6 +27,7 @@ app.use('/api/v1', profileRoutes);
 app.use('/api/v1/listings', listingsRoutes);
 app.use('/api/v1/states', statesRoutes);
 app.use('/api/v1/cities', citiesRoutes);
+app.use('/api/v1/categories', categoriesRoutes);
 
 app.get("/", (req, res) => {
   res.json({ message: "Welcome to the Findora API 🚀" });

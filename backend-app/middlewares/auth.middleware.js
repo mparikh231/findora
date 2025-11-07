@@ -11,6 +11,7 @@ const verifyToken = (req, res, next) => {
             if (err) {
                 return res.status(401).json({ status: false, message: 'Failed to authenticate token' });
             }
+            console.log("Decoded JWT:", decoded);
             req.userId = decoded.userId;
             req.userRole = decoded.userRole;
             next();

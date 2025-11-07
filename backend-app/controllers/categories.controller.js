@@ -9,17 +9,17 @@ const getCategories = async (req, res) => {
            return res.json({status: false, message: "No categories found" });
         }
         const categoriesData = [];
-        allCategories.forEach(categoriesData => {
+        allCategories.forEach(cat => {
             const categoryObj = {
-                id: categoriesData.id,
-                name: categoriesData.name,
-                description: categoriesData.description,
-                parentCategoryId: categoriesData.parentCategoryId,
+                id: cat.id,
+                name: cat.name,
+                description: cat.description,
+                parentCategoryId: cat.parentCategoryId,
                 subCategories: [],
-                createdAt: categoriesData.createdAt
+                createdAt: cat.createdAt
             };
-            if (categoriesData.parentCategoryId === 0) {
-                const childCategory = allCategories.filter(cat => cat.parentCategoryId === categoriesData.id);
+            if (cat.parentCategoryId === 0) {
+                const childCategory = allCategories.filter(childCat => childCat.parentCategoryId === cat.id);
                 console.log("childCategory:", childCategory);
 
                 if (childCategory) {
@@ -117,4 +117,4 @@ module.exports = {
     addCategory,
     updateCategory,
     deleteCategory
-};
+}; 

@@ -16,10 +16,10 @@ const getListings = async (req, res) => {
             status: listings.status,
             user: {
                 id: users.id,
-                userName: users.userName,
+                userName: users.user_name,
                 email: users.email,
-                firstName: users.firstName,
-                lastName: users.lastName,
+                firstName: users.first_name,
+                lastName: users.last_name,
             },
             category: {
                 id: categories.id,
@@ -66,10 +66,10 @@ const getListing = async (req, res) => {
             status: listings.status,
             user: {
                 id: users.id,
-                userName: users.userName,
+                userName: users.user_name,
                 email: users.email,
-                firstName: users.firstName,
-                lastName: users.lastName,
+                firstName: users.first_name,
+                lastName: users.last_name,
             },
             category: {
                 id: categories.id,
