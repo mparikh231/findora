@@ -1,6 +1,6 @@
 const db = require('../db/db');
 const { users } = require('../db/schema');
-const { eq, desc } = require('drizzle-orm');
+const { eq, desc, and } = require('drizzle-orm');
 const crypto = require('crypto');
 
 const strToMd5 = (str) => {
@@ -9,7 +9,19 @@ const strToMd5 = (str) => {
 
 const getUsers = async (req, res) => {
     try {
-        const userData = await db.select().from(users).orderBy(desc(users.id));
+
+        const { email, role, userName } = req.query;
+        const whereConditions = [];
+        if (role) {
+            whereConditions.push(eq(users.role, role));
+        }
+        if (email) {
+            whereConditions.push(eq(users.email, email));
+        }
+        if (userName) {
+            whereConditions.push(eq(users.user_name, userName));
+        }
+        const userData = await db.select().from(users).where(whereConditions.length > 0 ? and(...whereConditions) : undefined).orderBy(desc(users.id));
 
         if (!userData || userData.length <= 0) {
             return res.status(404).json({ status: false, message: 'No users found' });

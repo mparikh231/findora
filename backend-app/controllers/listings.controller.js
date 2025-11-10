@@ -1,9 +1,24 @@
 const db = require('../db/db');
 const { listings, users, categories, states, cities } = require('../db/schema');
-const { eq, desc } = require('drizzle-orm');
+const { eq, desc, and } = require('drizzle-orm');
 
 const getListings = async (req, res) => {
     try {
+
+        const { userId, categoryId, stateId, cityId } = req.query;
+        const whereConditions = [];
+        if(userId) {
+            whereConditions.push(eq(listings.userId, parseInt(userId, 10)));
+        }
+        if(categoryId) {
+            whereConditions.push(eq(listings.categoryId, parseInt(categoryId, 10)));
+        }
+        if(stateId) {
+            whereConditions.push(eq(listings.stateId, parseInt(stateId, 10)));
+        }
+        if(cityId) {
+            whereConditions.push(eq(listings.cityId, parseInt(cityId, 10)));
+        }
         const listingData = await db.select({
             id: listings.id,
             title: listings.title,
@@ -43,6 +58,7 @@ const getListings = async (req, res) => {
             .leftJoin(categories, eq(listings.categoryId, categories.id))
             .leftJoin(states, eq(listings.stateId, states.id))
             .leftJoin(cities, eq(listings.cityId, cities.id))
+            .where(whereConditions.length > 0 ? and(...whereConditions) : undefined)
             .orderBy(desc(listings.id));
         res.json({ status: true, message: 'Listings retrieved successfully', listingData });
     } catch (error) {
