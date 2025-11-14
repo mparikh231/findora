@@ -29,7 +29,9 @@ const signIn = async (req, res) => {
         const userData = await db.select({
             id: users.id,
             password: users.password,
-            role: users.role
+            role: users.role,
+            first_name: users.first_name,
+            last_name: users.last_name  
         }).from(users).where(and(eq(users.email, email))).limit(1);
 
         if (!userData || userData.length <= 0) {
@@ -51,14 +53,16 @@ const signIn = async (req, res) => {
         const payload = {
             userId: userData[0].id,
             email: email,
-            userRole: userData[0].role
+            userRole: userData[0].role,
+            firstName: userData[0].first_name,
+            lastName: userData[0].last_name
         };
         const token = jwt.sign(payload,
             process.env.JWT_SECRET_KEY,
             { expiresIn: tokenExpiry }
         );
 
-        res.json({ status: true, message: 'User signed in successfully', token });
+        res.json({ status: true, message: 'User signed in successfully', token, userData: payload });
     } catch (error) {
         console.error('Error during sign-in:', error);
         return res.status(500).json({ status: false, message: error.message || 'Internal server error' });

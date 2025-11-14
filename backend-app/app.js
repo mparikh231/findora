@@ -3,6 +3,7 @@ var express = require('express');
 var path = require('path');
 var cookieParser = require('cookie-parser');
 var logger = require('morgan');
+var cors = require('cors');
 
 var indexRouter = require('./routes/index');
 const authRoutes = require('./routes/auth.routes');
@@ -14,6 +15,12 @@ const citiesRoutes = require('./routes/cities.routes');
 const categoriesRoutes = require('./routes/categories.routes');
  
 var app = express();
+
+const corsConfig = {
+    origin: process.env.FRONTEND_URL,
+}
+
+app.use(cors(corsConfig));
 
 app.use(logger('dev'));
 app.use(express.json());
