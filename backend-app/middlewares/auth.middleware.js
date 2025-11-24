@@ -13,7 +13,7 @@ const verifyToken = (req, res, next) => {
             }
             console.log("Decoded JWT:", decoded);
             req.userId = decoded.userId;
-            req.userRole = decoded.userRole;
+            req.role = decoded.role;
             next();
         });
     } catch (error) {
@@ -23,7 +23,7 @@ const verifyToken = (req, res, next) => {
 };
 
 const isAdmin = (req, res, next) => {
-    if (req.userRole === 'admin') {
+    if (req.role === 'admin') {
         next();
     } else {
         return res.status(403).json({ status: false, message: 'Access denied: Admins only' });

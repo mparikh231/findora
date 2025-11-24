@@ -64,6 +64,20 @@
       "when": 1762433929789,
       "tag": "0008_daffy_otto_octavius",
       "breakpoints": true
+    },
+    {
+      "idx": 9,
+      "version": "7",
+      "when": 1763461491660,
+      "tag": "0009_spotty_vin_gonzales",
+      "breakpoints": true
+    },
+    {
+      "idx": 10,
+      "version": "7",
+      "when": 1763462519188,
+      "tag": "0010_spicy_roland_deschain",
+      "breakpoints": true
     }
   ]
 }

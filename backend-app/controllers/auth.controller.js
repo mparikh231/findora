@@ -31,7 +31,8 @@ const signIn = async (req, res) => {
             password: users.password,
             role: users.role,
             first_name: users.first_name,
-            last_name: users.last_name  
+            last_name: users.last_name,
+            user_name: users.user_name
         }).from(users).where(and(eq(users.email, email))).limit(1);
 
         if (!userData || userData.length <= 0) {
@@ -53,9 +54,10 @@ const signIn = async (req, res) => {
         const payload = {
             userId: userData[0].id,
             email: email,
-            userRole: userData[0].role,
+            role: userData[0].role,
             firstName: userData[0].first_name,
-            lastName: userData[0].last_name
+            lastName: userData[0].last_name,
+            userName: userData[0].user_name
         };
         const token = jwt.sign(payload,
             process.env.JWT_SECRET_KEY,

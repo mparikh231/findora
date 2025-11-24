@@ -8,3 +8,10 @@ export type Listing = {
     location?: string;
     createdAt?: string;
 };
+
+export type ListingActionSidebarProps = {
+    isOpen: boolean;
+    onModalChange?: (isOpen: boolean) => void;
+    action: 'add' | 'edit';
+    listingId?: number;
+};

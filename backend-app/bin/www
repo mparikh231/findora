@@ -5,7 +5,7 @@
  */
 
 var app = require('../app');
-var debug = require('debug')('backend:server');
+var debug = require('debug')('backend-app:server');
 var http = require('http');
 
 /**
@@ -87,9 +87,4 @@ function onListening() {
     ? 'pipe ' + addr
     : 'port ' + addr.port;
   debug('Listening on ' + bind);
-  console.log('---------------------------------------');
-  console.log(`Findora Server is running on port ${addr.port}`);
-  console.log(`Findora API is running on http://localhost:${addr.port}/api/v1/`);
-  console.log(`Happy coding!`);
-  console.log('---------------------------------------');
 }

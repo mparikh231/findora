@@ -137,9 +137,9 @@ const addListing = async (req, res) => {
         const sanitizedPrice = parseFloat(price, 10);
         const sanitizedIsAvailable = typeof isAvailable !== 'undefined' ? (isAvailable === 'true' || isAvailable === true || isAvailable === 1 || isAvailable === "1" ? true : false) : true;
         let sanitizedStatus = 'pending';
-        const sanitizedUserId = (req.userRole === 'admin' && userId) ? userId : req.userId;
+        const sanitizedUserId = (req.role === 'admin' && userId) ? userId : req.userId;
 
-        if (status && req.userRole === 'admin') {
+        if (status && req.role === 'admin') {
             const validStatuses = ['active', 'rejected', 'pending'];
             if (!validStatuses.includes(status)) {
                 return res.status(400).json({ status: false, message: 'Invalid status value' });
@@ -197,8 +197,8 @@ const deleteListing = async (req, res) => {
         if (subCategoryId) updateData.subCategoryId = subCategoryId;
         if (stateId) updateData.stateId = stateId;
         if (cityId) updateData.cityId = cityId;
-        if (req.userRole === 'admin' && userId) updateData.userId = userId;
-        if (status && req.userRole === 'admin') {
+        if (req.role === 'admin' && userId) updateData.userId = userId;
+        if (status && req.role === 'admin') {
             const validStatuses = ['active', 'rejected', 'pending'];
             if (!validStatuses.includes(status)) {
                 return res.status(400).json({ status: false, message: 'Invalid status value' });

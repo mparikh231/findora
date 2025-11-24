@@ -10,7 +10,7 @@ const strToMd5 = (str) => {
 const getUsers = async (req, res) => {
     try {
 
-        const { email, role, userName } = req.query;
+        const { email, role, user_name } = req.query;
         const whereConditions = [];
         if (role) {
             whereConditions.push(eq(users.role, role));
@@ -18,8 +18,8 @@ const getUsers = async (req, res) => {
         if (email) {
             whereConditions.push(eq(users.email, email));
         }
-        if (userName) {
-            whereConditions.push(eq(users.user_name, userName));
+        if (user_name) {
+            whereConditions.push(eq(users.user_name, user_name));
         }
         const userData = await db.select().from(users).where(whereConditions.length > 0 ? and(...whereConditions) : undefined).orderBy(desc(users.id));
 
@@ -108,9 +108,9 @@ const updateUser = async (req, res) => {
         if (md5Password) updateData.password = md5Password;
         if (first_name) updateData.first_name = first_name;
         if (last_name) updateData.last_name = last_name;
-        if (req.userRole === 'admin') {
+        if (req.role === 'admin') {
             if (status && status !== "") updateData.status = (status === "true" || status === true || status === "1") ? true : false;
-            if (userRole && (userRole === "admin" || userRole === "user")) updateData.userRole = userRole;
+            if (role && (role === "admin" || role === "user")) updateData.role = role;
         }
         const updatedUser = await db.update(users).set(updateData).where(eq(users.id, userId)).returning();
         if (updatedUser.length === 0) {
