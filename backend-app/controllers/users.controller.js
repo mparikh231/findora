@@ -21,7 +21,16 @@ const getUsers = async (req, res) => {
         if (user_name) {
             whereConditions.push(eq(users.user_name, user_name));
         }
-        const userData = await db.select().from(users).where(whereConditions.length > 0 ? and(...whereConditions) : undefined).orderBy(desc(users.id));
+        const userData = await db.select({
+            user_id: users.id,
+            user_name: users.user_name,
+            email: users.email,
+            status: users.status,
+            first_name: users.first_name,
+            last_name: users.last_name,
+            created_at: users.created_at,
+            role: users.role
+        }).from(users).where(whereConditions.length > 0 ? and(...whereConditions) : undefined).orderBy(desc(users.id));
 
         if (!userData || userData.length <= 0) {
             return res.status(404).json({ status: false, message: 'No users found' });
@@ -51,7 +60,7 @@ const getUser = async (req, res) => {
 const addUser = async (req, res) => {
     try {
         // get user details from request body
-        const { user_name, email, password, first_name, last_name } = req.body;
+        const { user_name, email, password, first_name, last_name, status, role } = req.body;
 
         // validate input
         if (!user_name || !email || !password) {
@@ -78,7 +87,9 @@ const addUser = async (req, res) => {
             email: email,
             password: strToMd5(password),
             first_name: first_name,
-            last_name: last_name
+            last_name: last_name,
+            role: role,
+            status: (status === "true" || status === true || status === "1") ? true : false
         }).returning();
 
         if (newUser.length === 0) {

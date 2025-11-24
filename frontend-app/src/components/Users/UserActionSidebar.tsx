@@ -1,24 +1,112 @@
+import UserFormHtml from "./UserFormHtml";
+import { toast } from "react-toastify";
+import { useState } from "react";
+import { checkEmailFormat } from "../../utils/helpers";
 import { Offcanvas } from "reactstrap";
 import { Save, X } from "lucide-react";
-import UserFormHtml from "./UserFormHtml";
-import type { UserActionSidebarProps } from "../../types/Users";
+import type { UserActionSidebarProps, UserFormData } from "../../types/Users";
+import apiCall from "../../utils/axios";    
 
 const UserActionSidebar = (props: UserActionSidebarProps) => {
-    const { isOpen, onModalChange, action, userId } = props;
+    const { isOpen, onModalChange, action, userId, refreshUsers } = props;
+
+    const [isLoading, setIsLoading] = useState<boolean>(false);
+    const [userFormData, setUserFormData] = useState<UserFormData>({
+        user_name: '',
+        email: '',
+        password: '',
+        first_name: '',
+        last_name: '',
+        status: "active",
+        role: 'user'
+    });
+
+    const resetUserFormData = () => {
+        setUserFormData({
+            user_name: '',
+            email: '',
+            password: '',
+            first_name: '',
+            last_name: '',
+            status: "active",
+            role: 'user'
+        });
+    }
+
+    const addNewUser = async () => {
+        try {
+            const payload = {
+                user_name: userFormData.user_name,
+                email: userFormData.email,
+                password: userFormData.password,
+                first_name: userFormData.first_name,
+                last_name: userFormData.last_name,
+                status: userFormData.status === "active" ? true : false,
+                role: userFormData.role
+            }
+            setIsLoading(true);
+            const response = await apiCall.post('/users', payload);
+            const { status } = response.data;
+
+            if(!status) {
+                toast.error("Failed to add new user. Please try again later.");
+                return;
+            }
+
+            toast.success("New user added successfully!");
+            onModalChange && onModalChange(false);
+            refreshUsers && refreshUsers();
+            resetUserFormData();
+
+        } catch (error) {
+            console.error("Error adding new user:", error);
+            toast.error("An error occurred while adding the user");
+        } finally {
+            setIsLoading(false);
+        }
+    };
+
+    const handleFormSubmit = (e: React.FormEvent) => {
+        e.preventDefault();
+
+        if(checkEmailFormat(userFormData.email) === false) {
+            toast.error("Please enter a valid email address.");
+            return;
+        }
+
+        if(action === 'add') {
+            addNewUser();
+            return;
+        }
+    }
 
     return(
-        <Offcanvas isOpen={isOpen} toggle={() => onModalChange && onModalChange(!isOpen)} direction="end">
-            <div className="offcanvas-header border-bottom">
-                <h5 className="offcanvas-title mb-0">{action === 'add' ? 'Add New User' : 'Edit User'}</h5>
-                <button type="button" className="btn-close text-reset" aria-label="Close" onClick={() => onModalChange && onModalChange(false)}></button>
-            </div>
-            <div className="offcanvas-body">
-                <UserFormHtml />
-            </div>
-            <div className="offcanvas-footer border-top d-flex align-items-center justify-content-between">
-                <button type="submit" className="btn btn-dark d-flex align-items-center gap-1"><Save size={18} /></button>
-                <button type="button" className="btn btn-secondary d-flex align-items-center gap-1" onClick={() => onModalChange && onModalChange(false)}><X size={18} />Cancel</button>
-            </div>
+        <Offcanvas isOpen={isOpen} toggle={() => onModalChange && onModalChange(!isOpen)} direction="end" fade={false}>
+
+            {isLoading && (
+                <div className="d-flex justify-content-center align-items-center vh-100 position-absolute" style={{ backgroundColor: "rgba(255,255,255, 0.5)" }}>
+                    <div className="spinner-border text-dark" role="status">
+                        <span className="visually-hidden">Loading...</span>
+                    </div>
+                </div>
+            )}
+            <form onSubmit={handleFormSubmit} className="d-flex flex-column vh-100">
+
+                <div className="offcanvas-header border-bottom">
+                    <h5 className="offcanvas-title mb-0">{action === 'add' ? 'Add New User' : 'Edit User'}</h5>
+                    <button type="button" className="btn-close text-reset" aria-label="Close" onClick={() => onModalChange && onModalChange(false)}></button>
+                </div>
+
+                <div className="offcanvas-body flex-fill">
+                    <UserFormHtml userData={userFormData} setUserData={setUserFormData} />
+                </div>
+
+                <div className="offcanvas-footer border-top d-flex align-items-center justify-content-between">
+                    <button type="submit" className="btn btn-dark d-flex align-items-center gap-1"><Save size={18} />Save</button>
+                    <button type="button" className="btn btn-secondary d-flex align-items-center gap-1" onClick={() => onModalChange && onModalChange(false)}><X size={18} />Cancel</button>
+                </div>
+            </form>
+
         </Offcanvas>
     );
 };

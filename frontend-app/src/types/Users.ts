@@ -26,6 +26,22 @@ export interface UserActionSidebarProps {
     onModalChange?: (isOpen: boolean) => void;
     action: 'add' | 'edit' ;
     userId?: number;
+    refreshUsers?: () => void;
+}
+
+export interface UserFormHtmlProps {
+    userData: UserFormData;
+    setUserData: React.Dispatch<React.SetStateAction<UserFormData>>;
+}
+
+export interface UserFormData {
+    user_name: string;
+    email: string;
+    password: string;
+    first_name?: string;
+    last_name?: string;
+    role: "user" | "admin";
+    status: "active" | "inactive";
 }
 export interface UsersTableViewProps {
     users: Array<UsersTableViewData>;

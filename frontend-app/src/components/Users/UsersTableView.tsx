@@ -27,7 +27,7 @@ const UsersTableView = (props: UsersTableViewProps) => {
                             </tr>
                         </thead>
                         <tbody>
-                            {isLoading === true && (
+                            {isLoading === true && (    
                                 <tr>
                                     <td colSpan={8} className="text-center">Loading users...</td>
                                 </tr>

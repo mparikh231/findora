@@ -42,7 +42,7 @@ const AdminNav = () => {
             <div className={`collapse ${isUsersOpen ? 'show' : ''}`} id="collapseUsers" aria-labelledby="headingOne" data-bs-parent="#sidenavAccordion">
                 <nav className="sb-sidenav-menu-nested nav">
                     <Link to="/admin/users" className="nav-link">View All</Link>
-                    <Link to="/admin/users/add-new" className="nav-link">Add New</Link>
+                    <Link to="/admin/users/add" className="nav-link">Add New</Link>
                     <Link to="/admin/profile" className="nav-link">Profile</Link>
                 </nav>
             </div>

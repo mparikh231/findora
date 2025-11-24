@@ -4,12 +4,21 @@ import apiCall from "../../utils/axios";
 import { useEffect, useState } from "react";
 import UsersTableView from "../../components/Users/UsersTableView";
 import UserActionSidebar from "../../components/Users/UserActionSidebar";
+import { useNavigate, useParams } from "react-router-dom";
 
 const UsersPage = () => {
 
+    const { action, userId } = useParams();
+    const navigate = useNavigate();
+
     const [isLoading, setIsLoading] = useState<boolean>(true);
-    const [isSidebarOpen, setIsSidebarOpen] = useState<boolean>(false);
-    const [sidebarAction, setSidebarAction] = useState<"add" | "edit">("add");
+    const [isSidebarOpen, setIsSidebarOpen] = useState<boolean>(() => {
+        return action === "add" || action === "edit";
+    });
+    const [sidebarAction, setSidebarAction] = useState<"add" | "edit">(() => {
+        if (action === "edit" && userId) return "edit";
+        return "add";
+    });
     const [users, setUsers] = useState<Array<UsersTableViewData>>([]);
 
     const fetchUsers = async () => {
@@ -35,6 +44,24 @@ const UsersPage = () => {
         fetchUsers();
     }, []);
 
+    useEffect(() => {
+        if (action === "edit" && userId) {
+            setSidebarAction("edit");
+            setIsSidebarOpen(true);
+        } else if (action === "add") {
+            setSidebarAction("add");
+            setIsSidebarOpen(true);
+        } else {
+            setIsSidebarOpen(false);
+        }
+    }, [action, userId]);
+
+    useEffect(() => {
+        if (!isSidebarOpen && (action === "add" || action === "edit")) {
+            navigate("/admin/users");
+        }
+    }, [isSidebarOpen]);
+
     return <>
         <div className="d-flex align-items-center justify-content-between mb-4">
             <h3 className="mb-0">Users</h3>
@@ -43,7 +70,7 @@ const UsersPage = () => {
 
         <UsersTableView users={users} isLoading={isLoading} />
 
-        <UserActionSidebar isOpen={isSidebarOpen} action={sidebarAction} onModalChange={setIsSidebarOpen} />
+        <UserActionSidebar isOpen={isSidebarOpen} action={sidebarAction} onModalChange={setIsSidebarOpen} refreshUsers={fetchUsers} />
     </>;
 };
 export default UsersPage;
