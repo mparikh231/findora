@@ -1,6 +1,7 @@
+const { inArray } = require('drizzle-orm');
 const db = require('../db/db');
-const { states } = require('../db/schema');
-const { eq } = require('drizzle-orm');
+const { states, cities, listings } = require('../db/schema');
+const { eq, or } = require('drizzle-orm');
 
 const getStates = async (req, res) => {
     try {
@@ -8,7 +9,7 @@ const getStates = async (req, res) => {
         if (!allStates || allStates.length <= 0) {
             return res.json({ status: false, message: 'No states found' });
         }
-        return res.json({ status: true, message: 'States fetched successfully', statesData: allStates });
+        return res.json({ status: true, message: 'States fetched successfully', data: allStates });
     } catch (error) {
         console.error('Error during state fetching:', error);
         return res.status(500).json({ status: false, message: error.message || 'Internal server error' });
@@ -19,7 +20,7 @@ const getState = async (req, res) => {
     try {
         const stateId = req.params.id;
         const state = await db.select().from(states).where(eq(states.id, stateId));
-        return res.json({ status: true, message: 'State fetched successfully', stateData: state });
+        return res.json({ status: true, message: 'State fetched successfully', data: state });
     } catch (error) {
         console.error('Error during state fetching:', error);
         return res.status(500).json({ status: false, message: error.message || 'Internal server error' });
@@ -36,7 +37,7 @@ const addState = async (req, res) => {
         if (!newState || newState.length <= 0) {
             return res.status(500).json({ status: false, message: 'Failed to add state' });
         }
-        return res.json({ status: true, message: 'State added successfully', stateData: newState });
+        return res.json({ status: true, message: 'State added successfully', data: newState });
     } catch (error) {
         console.error('Error during state addition:', error);
         return res.status(500).json({ status: false, message: error.message || 'Internal server error' });
@@ -51,7 +52,7 @@ const updateState = async (req, res) => {
             return res.status(400).json({ status: false, message: 'State name is required' });
         }
         const updatedState = await db.update(states).set({ name: name.trim() }).where(eq(states.id, stateId)).returning();
-        return res.json({ status: true, message: 'State updated successfully', stateData: updatedState });
+        return res.json({ status: true, message: 'State updated successfully', data: updatedState });
     } catch (error) {
         console.error('Error during state update:', error);
         return res.status(500).json({ status: false, message: error.message || 'Internal server error' });
@@ -61,6 +62,15 @@ const updateState = async (req, res) => {
 const deleteState = async (req, res) => {
     try {
         const stateId = req.params.id;
+        const citiesInState = await db.select({
+            id: cities.id
+        }).from(cities).where(eq(cities.stateId, stateId));
+
+        await db.delete(listings).where(or(
+            eq(listings.stateId, stateId),
+            (citiesInState && citiesInState.length > 0) ? inArray(listings.cityId, citiesInState.map(city => city.id)) : false
+        ));
+        await db.delete(cities).where(eq(cities.stateId, stateId));
         await db.delete(states).where(eq(states.id, stateId));
         return res.json({ status: true, message: 'State deleted successfully' });
     } catch (error) {

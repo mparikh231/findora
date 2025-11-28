@@ -1,6 +1,6 @@
 const db = require('../db/db');
-const { categories } = require('../db/schema');
-const { eq, desc } = require('drizzle-orm');
+const { categories, listings } = require('../db/schema');
+const { eq, desc, inArray } = require('drizzle-orm');
 
 const getCategories = async (req, res) => {
     try {
@@ -64,7 +64,12 @@ const addCategory = async (req, res) => {
         if (!name || name.trim() === "") {
             return res.status(400).json({ status: false, message: 'Category name is required' });
         }
-        const newCategory = await db.insert(categories).values({ name: name.trim(), description: description.trim(), parentCategoryId: parentId }).returning();
+        const addNewCategoryData = {
+            name: name.trim(),
+            description: description && description !== "" ? description.trim() : undefined,
+            parentCategoryId: parentId
+        }
+        const newCategory = await db.insert(categories).values(addNewCategoryData).returning();
         if (!newCategory || newCategory.length <= 0) {
             return res.status(500).json({ status: false, message: 'Failed to add category' });
         }
@@ -103,7 +108,29 @@ const updateCategory = async (req, res) => {
 const deleteCategory = async (req, res) => {
     try {
         const categoryId = req.params.id;
-        // await db.delete(categories).where(eq(categories.id, categoryId));
+        const category = await db.select({
+            parentCategoryId: categories.parentCategoryId
+        }).from(categories).where(eq(categories.id, categoryId)).limit(1);
+
+
+
+        if (!category || category.length <= 0) {
+            return res.status(404).json({ status: false, message: 'Category not found' });
+        }
+        const parentCategoryId = category[0].parentCategoryId;
+
+        // If it's a parent category, set its children's parentCategoryId to 0
+        const categorisIds = [categoryId];
+        if (parentCategoryId === 0) {
+            const childCategorys = await db.select({
+                id: categories.id
+            }).from(categories).where(eq(categories.parentCategoryId, categoryId));
+            childCategorys.forEach(cat => categorisIds.push(cat.id));
+        }
+
+        // delete lisings associated with these categories
+        await db.delete(listings).where(inArray(listings.categoryId, categorisIds));
+        await db.delete(categories).where(inArray(categories.id, categorisIds));
         return res.json({ status: true, message: 'Category deleted successfully' });
     } catch (error) {
         console.error('Error during category deletion:', error);
