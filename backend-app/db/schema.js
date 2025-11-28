@@ -47,7 +47,7 @@ export const listings = pgTable("listings", {
     imageUrls: text("image_urls").array().default([]),
     isAvailable: boolean("is_available").notNull().default(true),
     status: listingStatuses("status").notNull().default("pending"),
-    userId: integer("user_id")
+    user_id: integer("user_id")
         .default(null)
         .references(() => users.id, { onDelete: "cascade" }),
     cityId: integer("city_id")

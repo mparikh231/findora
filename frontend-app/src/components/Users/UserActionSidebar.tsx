@@ -1,6 +1,6 @@
 import UserFormHtml from "./UserFormHtml";
 import { toast } from "react-toastify";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { checkEmailFormat } from "../../utils/helpers";
 import { Offcanvas } from "reactstrap";
 import { Save, X } from "lucide-react";
@@ -8,17 +8,17 @@ import type { UserActionSidebarProps, UserFormData } from "../../types/Users";
 import apiCall from "../../utils/axios";    
 
 const UserActionSidebar = (props: UserActionSidebarProps) => {
-    const { isOpen, onModalChange, action, userId, refreshUsers } = props;
+    const { isOpen, onModalChange, action, user_id, refreshUsers, userData: editUserData } = props;
 
     const [isLoading, setIsLoading] = useState<boolean>(false);
     const [userFormData, setUserFormData] = useState<UserFormData>({
-        user_name: '',
-        email: '',
+        user_name: editUserData?.user_name || '',
+        email: editUserData?.email || '',
         password: '',
-        first_name: '',
-        last_name: '',
-        status: "active",
-        role: 'user'
+        first_name: editUserData?.first_name || '',
+        last_name: editUserData?.last_name || '',
+        status: editUserData?.status || "1",
+        role: editUserData?.role || 'user'
     });
 
     const resetUserFormData = () => {
@@ -66,6 +66,42 @@ const UserActionSidebar = (props: UserActionSidebarProps) => {
         }
     };
 
+    const editUser = async () => {
+        try {
+            
+            const payload: any ={};
+            if(userFormData.email) payload.email = userFormData.email;
+            if(userFormData.password) payload.password = userFormData.password;
+            if(userFormData.first_name) payload.first_name = userFormData.first_name;
+            if(userFormData.last_name) payload.last_name = userFormData.last_name;
+            if(userFormData.status) payload.status = userFormData.status === "1" ? 1 : 0;
+            if(userFormData.role) payload.role = userFormData.role;
+
+            if (Object.keys(payload).length === 0) {
+                toast.info("No changes made to update.");
+                return;
+            }
+
+            setIsLoading(true);
+            const response = await apiCall.put(`/users/${user_id}`, payload);
+            const { status } = response.data;
+
+            if(!status) {
+                toast.error("Failed to edit user. Please try again later.");
+                return;
+            }
+
+            toast.success("User edited successfully!");
+            onModalChange && onModalChange(false);
+            resetUserFormData();
+        } catch (error) {
+            console.error("Error editing user:", error);
+            toast.error("Failed to edit user. Please try again later.");
+        } finally {
+            setIsLoading(false);
+        }
+    };
+
     const handleFormSubmit = (e: React.FormEvent) => {
         e.preventDefault();
 
@@ -77,8 +113,25 @@ const UserActionSidebar = (props: UserActionSidebarProps) => {
         if(action === 'add') {
             addNewUser();
             return;
+        } else if ( action === 'edit' && user_id) {
+            editUser();
+            return;
         }
-    }
+    };
+
+    useEffect(() => {
+        if ( action === 'edit' && editUserData) {
+            setUserFormData({
+                user_name: editUserData.user_name,
+                email: editUserData.email,
+                password: editUserData.password,
+                first_name: editUserData.first_name,
+                last_name: editUserData.last_name,
+                status: editUserData.status,
+                role: editUserData.role
+            });
+        }
+    }, [editUserData]);
 
     return(
         <Offcanvas isOpen={isOpen} toggle={() => onModalChange && onModalChange(!isOpen)} direction="end" fade={false}>
@@ -98,7 +151,7 @@ const UserActionSidebar = (props: UserActionSidebarProps) => {
                 </div>
 
                 <div className="offcanvas-body flex-fill">
-                    <UserFormHtml userData={userFormData} setUserData={setUserFormData} />
+                    <UserFormHtml userData={userFormData} setUserData={setUserFormData} action= {action} />
                 </div>
 
                 <div className="offcanvas-footer border-top d-flex align-items-center justify-content-between">

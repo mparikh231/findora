@@ -52,7 +52,7 @@ const signIn = async (req, res) => {
         // generate JWT token
         const tokenExpiry = Math.floor(Date.now() / 1000) + (2 * 60 * 60); // 2 hours from now
         const payload = {
-            userId: userData[0].id,
+            user_id: userData[0].id,
             email: email,
             role: userData[0].role,
             firstName: userData[0].first_name,

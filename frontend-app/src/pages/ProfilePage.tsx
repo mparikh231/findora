@@ -41,7 +41,7 @@ const ProfilePage = () => {
             }
 
             setIsLoading(true);
-            const response = await apiCall.put(`/profile/${user?.userId}`, updateUserPayload, {
+            const response = await apiCall.put(`/profile/${user?.user_id}`, updateUserPayload, {
                 headers: {
                     Authorization: `Bearer ${token}`
                 }

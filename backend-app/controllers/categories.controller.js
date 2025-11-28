@@ -28,7 +28,7 @@ const getCategories = async (req, res) => {
                 categoriesData.push(categoryObj);
             }
         });
-        return res.json({status: true, message: 'Categories fetched successfully', categoriesData });
+        return res.json({status: true, message: 'Categories fetched successfully', data: categoriesData });
     }catch(error){
         console.error("Error fetching categories:", error);
         res.status(500).json({ status: false, message: error.message || 'Internal server error' });
@@ -51,7 +51,7 @@ const getCategory = async (req, res) => {
             category[0].childCategory = childCategory.length > 0 ? childCategory : null;
         }
 
-        return res.json({ status: true, message: 'Category fetched successfully', categoryData: category[0] });
+        return res.json({ status: true, message: 'Category fetched successfully', data: category[0] });
     } catch (error) {
         console.error('Error during category fetching:', error);
         return res.status(500).json({ status: false, message: error.message || 'Internal server error' });

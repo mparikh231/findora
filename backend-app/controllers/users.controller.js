@@ -10,7 +10,7 @@ const strToMd5 = (str) => {
 const getUsers = async (req, res) => {
     try {
 
-        const { email, role, user_name } = req.query;
+        const { email, role, user_name, status } = req.query;
         const whereConditions = [];
         if (role) {
             whereConditions.push(eq(users.role, role));
@@ -20,6 +20,9 @@ const getUsers = async (req, res) => {
         }
         if (user_name) {
             whereConditions.push(eq(users.user_name, user_name));
+        }
+        if (status) {
+            whereConditions.push(eq(users.status, status));
         }
         const userData = await db.select({
             user_id: users.id,
@@ -45,8 +48,8 @@ const getUsers = async (req, res) => {
 
 const getUser = async (req, res) => {
     try {
-        const userId = req.params.id || req.userId;
-        const userData = await db.select().from(users).where(eq(users.id, userId)).limit(1);
+        const user_id = req.params.id || req.user_id;
+        const userData = await db.select().from(users).where(eq(users.id, user_id)).limit(1);
         if (!userData || userData.length <= 0) {
             return res.status(404).json({ status: false, message: 'User not found' });
         }
@@ -105,8 +108,12 @@ const addUser = async (req, res) => {
 
 const updateUser = async (req, res) => {
     try {
-        const userId = req.params.id || req.userId;
-        const { email, password, first_name, last_name, status, userRole } = req.body;
+        const user_id = req.params.id || req.user_id;
+        const { email, password, first_name, last_name, status, role } = req.body;
+        console.log('Update User Payload',req.body);
+        console.log('User role from body:',role);
+        console.log('User role from auth:',req.users?.role);
+        
         const md5Password = (password && password !== "") ? strToMd5(password) : null;
 
         if (email) {
@@ -119,11 +126,12 @@ const updateUser = async (req, res) => {
         if (md5Password) updateData.password = md5Password;
         if (first_name) updateData.first_name = first_name;
         if (last_name) updateData.last_name = last_name;
-        if (req.role === 'admin') {
-            if (status && status !== "") updateData.status = (status === "true" || status === true || status === "1") ? true : false;
+        if (req.users?.role === 'admin') {
+            if ( status !== "undefined" ) updateData.status = (status === "true" || status === true || status === "1") ? true : false;
             if (role && (role === "admin" || role === "user")) updateData.role = role;
         }
-        const updatedUser = await db.update(users).set(updateData).where(eq(users.id, userId)).returning();
+        console.log('Update User Data:', updateData);
+        const updatedUser = await db.update(users).set(updateData).where(eq(users.id, user_id)).returning();
         if (updatedUser.length === 0) {
             return res.status(404).json({ status: false, message: 'User not found' });
         }
@@ -136,8 +144,8 @@ const updateUser = async (req, res) => {
 
 const deleteUser = async (req, res) => {
     try {
-        const userId = req.params.id;
-        const deletedCount = await db.delete(users).where(eq(users.id, userId)).returning().then(result => result.length);
+        const user_id = req.params.id;
+        const deletedCount = await db.delete(users).where(eq(users.id, user_id)).returning().then(result => result.length);
         if (deletedCount === 0) {
             return res.status(404).json({ status: false, message: 'User not found' });
         }

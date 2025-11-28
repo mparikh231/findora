@@ -1,13 +1,16 @@
 import { Modal, ModalBody, ModalFooter, ModalHeader } from "reactstrap";
 import type { UsersTableViewProps } from "../../types/Users";
 import { Edit, Trash } from "lucide-react";
-import { useState } from "react";
+import { useState, useContext } from "react";
+import { UserContext } from "../../context/UserContext";
 
 const UsersTableView = (props: UsersTableViewProps) => {
 
+    const userContext = useContext(UserContext);
+    const { user: currentUser } = userContext || {};
     const { users, isLoading = false, editUser, deleteUser } = props;
     const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
-    const [selectedUserId, setSelectedUserId] = useState<number | null>(null);
+    const [selectedUser_id, setSelectedUser_id] = useState<number | null>(null);
 
     return (
         <>
@@ -40,7 +43,7 @@ const UsersTableView = (props: UsersTableViewProps) => {
                             )}
 
                             {isLoading !== true && users && users.length > 0 && users.map((user, index) => (
-                                <tr key={`userTableRow-${user.userId}`}>
+                                <tr key={`userTableRow-${user.user_id}`}>
                                     <td className="text-center">{index + 1}</td>
                                     <td>{user.first_name} {user.last_name}</td>
                                     <td>{user.email}</td>
@@ -49,8 +52,9 @@ const UsersTableView = (props: UsersTableViewProps) => {
                                     <td>{user.status ? "Active" : "Inactive"}</td>
                                     <td>{new Date(user.created_at).toLocaleDateString()}</td>
                                     <td className="text-center">
-                                        <button className="btn btn-sm btn-link text-dark" onClick={() => editUser && editUser(user.userId)}><Edit size={16} /></button>
-                                        <button className="btn btn-sm btn-link text-danger" onClick={() => {setSelectedUserId(user.userId); setIsModalOpen(true);}}><Trash size={16} /></button>
+                                        <button className="btn btn-sm btn-link text-dark" onClick={() => editUser && editUser(user.user_id)}><Edit size={16} /></button>
+
+                                        <button className="btn btn-sm btn-link text-danger" onClick={() => {setSelectedUser_id(user.user_id); setIsModalOpen(true);}} disabled={currentUser?.user_id === user.user_id}><Trash size={16} /></button>
                                     </td>
                                 </tr>
                             ))}
@@ -65,9 +69,9 @@ const UsersTableView = (props: UsersTableViewProps) => {
                 </ModalBody>
                 <ModalFooter>
                     <button className="btn btn-secondary" onClick={() => { setIsModalOpen(false) }}>Cancel</button>
-                    <button className="btn btn-danger" onClick={() =>{
-                        
-                        if(deleteUser) deleteUser(selectedUserId as number);
+                    <button className="btn btn-danger" onClick={() => {
+
+                        if(deleteUser) deleteUser(selectedUser_id as number);
                         setIsModalOpen(false);
                     }}>Delete</button>
                 </ModalFooter>

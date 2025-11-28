@@ -1,6 +1,6 @@
 export interface userData {
-    email: string;
-    userId: number;
+    email: string | null;
+    user_id: number;
     first_name?: string;
     last_name?: string;
     role?: "user" | "admin";
@@ -25,13 +25,15 @@ export interface UserActionSidebarProps {
     isOpen: boolean;
     onModalChange?: (isOpen: boolean) => void;
     action: 'add' | 'edit' ;
-    userId?: number;
+    user_id?: number | null;
     refreshUsers?: () => void;
+    userData?: UserFormData | null;
 }
 
 export interface UserFormHtmlProps {
     userData: UserFormData;
     setUserData: React.Dispatch<React.SetStateAction<UserFormData>>;
+    action?: 'add' | 'edit';
 }
 
 export interface UserFormData {
@@ -41,17 +43,17 @@ export interface UserFormData {
     first_name?: string;
     last_name?: string;
     role: "user" | "admin";
-    status: "active" | "inactive";
+    status: "active" | "inactive" | "1" | "0";
 }
 export interface UsersTableViewProps {
     users: Array<UsersTableViewData>;
     isLoading?: boolean;
-    editUser?: (userId: number) => void;
-    deleteUser?: (userId: number) => void;
+    editUser?: (user_id: number) => void;
+    deleteUser?: (user_id: number) => void;
 }
 export interface UsersTableViewData {
     email: string;
-    userId: number;
+    user_id: number;
     status: boolean;
     user_name: string;
     first_name: string;

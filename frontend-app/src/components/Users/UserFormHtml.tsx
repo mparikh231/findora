@@ -3,7 +3,7 @@ import type { UserFormHtmlProps } from "../../types/Users";
 import { Eye, EyeOff } from "lucide-react";
 
 const UserFormHtml = (props: UserFormHtmlProps) => {
-    const { userData, setUserData } = props;
+    const { userData, setUserData, action } = props;
 
     const [showPassword, setShowPassword] = useState<boolean>(false);
     const toggleShowPassword = () => setShowPassword(!showPassword);
@@ -12,7 +12,7 @@ const UserFormHtml = (props: UserFormHtmlProps) => {
         <>
             <div className="mb-3">
                 <label htmlFor="user_name" className="form-label">Username*</label>
-                <input type="text" className="form-control" id="user_name" placeholder="Enter username" required value={userData.user_name} onChange={(e) => setUserData({ ...userData, user_name: e.target.value })} />
+                <input type="text" className="form-control" id="user_name" placeholder="Enter username" required value={userData.user_name} onChange={(e) => setUserData({ ...userData, user_name: e.target.value })} disabled={action === 'edit'} readOnly={action === 'edit'} />
             </div>
 
             <div className="mb-3">
@@ -23,7 +23,7 @@ const UserFormHtml = (props: UserFormHtmlProps) => {
             <div className="mb-3">
                 <label htmlFor="password" className="form-label">Password*</label>
                 <div className="input-group">
-                    <input type={showPassword ? "text" : "password"} className="form-control" id="password" placeholder="Enter password" required value={userData.password} onChange={(e) => setUserData({ ...userData, password: e.target.value })} />
+                    <input type={showPassword ? "text" : "password"} className="form-control" id="password" placeholder="Enter password" required= {action === 'add'} value={userData.password} onChange={(e) => setUserData({ ...userData, password: e.target.value })} />
                     <button className="btn btn-secondary" type="button" onClick={toggleShowPassword}>
                         {showPassword ? <Eye /> : <EyeOff />}
                     </button>

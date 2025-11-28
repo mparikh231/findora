@@ -42,7 +42,7 @@ function App() {
           <Route path="/admin/listings" element={<ListingManagementPage />} />
           <Route path="/admin/users" element={<UsersPage />} />
           <Route path="/admin/users/:action" element={<UsersPage />} />
-          <Route path="/admin/users/:action/:userId" element={<UsersPage />} />
+          <Route path="/admin/users/:action/:user_id" element={<UsersPage />} />
         </Route>
       </Route>
     </Routes>

@@ -5,10 +5,10 @@ const { eq, desc, and } = require('drizzle-orm');
 const getListings = async (req, res) => {
     try {
 
-        const { userId, categoryId, stateId, cityId } = req.query;
+        const { user_id, categoryId, stateId, cityId } = req.query;
         const whereConditions = [];
-        if(userId) {
-            whereConditions.push(eq(listings.userId, parseInt(userId, 10)));
+        if(user_id) {
+            whereConditions.push(eq(listings.user_id, parseInt(user_id, 10)));
         }
         if(categoryId) {
             whereConditions.push(eq(listings.categoryId, parseInt(categoryId, 10)));
@@ -54,7 +54,7 @@ const getListings = async (req, res) => {
             updatedAt: listings.updatedAt,
         })
             .from(listings)
-            .leftJoin(users, eq(listings.userId, users.id))
+            .leftJoin(users, eq(listings.user_id, users.id))
             .leftJoin(categories, eq(listings.categoryId, categories.id))
             .leftJoin(states, eq(listings.stateId, states.id))
             .leftJoin(cities, eq(listings.cityId, cities.id))
@@ -105,7 +105,7 @@ const getListing = async (req, res) => {
             updatedAt: listings.updatedAt,
         })
             .from(listings)
-            .leftJoin(users, eq(listings.userId, users.id))
+            .leftJoin(users, eq(listings.user_id, users.id))
             .leftJoin(categories, eq(listings.categoryId, categories.id))
             .leftJoin(states, eq(listings.stateId, states.id))
             .leftJoin(cities, eq(listings.cityId, cities.id))
@@ -123,7 +123,7 @@ const getListing = async (req, res) => {
 
 const addListing = async (req, res) => {
     try {
-        const { title, description, price, location, isAvailable, status, categoryId, subCategoryId, stateId, cityId, userId } = req.body;
+        const { title, description, price, location, isAvailable, status, categoryId, subCategoryId, stateId, cityId, user_id } = req.body;
 
         // Basic validation
         if (!title || !description || !price || !location) {
@@ -137,7 +137,7 @@ const addListing = async (req, res) => {
         const sanitizedPrice = parseFloat(price, 10);
         const sanitizedIsAvailable = typeof isAvailable !== 'undefined' ? (isAvailable === 'true' || isAvailable === true || isAvailable === 1 || isAvailable === "1" ? true : false) : true;
         let sanitizedStatus = 'pending';
-        const sanitizedUserId = (req.role === 'admin' && userId) ? userId : req.userId;
+        const sanitizedUser_id = (req.role === 'admin' && user_id) ? user_id : req.user_id;
 
         if (status && req.role === 'admin') {
             const validStatuses = ['active', 'rejected', 'pending'];
@@ -154,7 +154,7 @@ const addListing = async (req, res) => {
             location: sanitizedLocation,
             isAvailable: sanitizedIsAvailable,
             status: sanitizedStatus,
-            userId: sanitizedUserId,
+            user_id: sanitizedUser_id,
             categoryId,
             subCategoryId,
             stateId,
@@ -185,7 +185,7 @@ const updateListing = async (req, res) => {
 const deleteListing = async (req, res) => {
     try {
         const listingId = req.params.id;
-        const { title, description, price, location, isAvailable, status, categoryId, subCategoryId, stateId, cityId, userId } = req.body;
+        const { title, description, price, location, isAvailable, status, categoryId, subCategoryId, stateId, cityId, user_id } = req.body;
 
         const updateData = {};
         if (title && title.trim() !== '') updateData.title = String(title).trim();
@@ -197,7 +197,7 @@ const deleteListing = async (req, res) => {
         if (subCategoryId) updateData.subCategoryId = subCategoryId;
         if (stateId) updateData.stateId = stateId;
         if (cityId) updateData.cityId = cityId;
-        if (req.role === 'admin' && userId) updateData.userId = userId;
+        if (req.role === 'admin' && user_id) updateData.user_id = user_id;
         if (status && req.role === 'admin') {
             const validStatuses = ['active', 'rejected', 'pending'];
             if (!validStatuses.includes(status)) {
