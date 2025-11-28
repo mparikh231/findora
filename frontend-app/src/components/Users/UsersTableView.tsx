@@ -3,6 +3,7 @@ import type { UsersTableViewProps } from "../../types/Users";
 import { Edit, Trash } from "lucide-react";
 import { useState, useContext } from "react";
 import { UserContext } from "../../context/UserContext";
+import { formatDate } from "../../utils/helpers";
 
 const UsersTableView = (props: UsersTableViewProps) => {
 
@@ -48,9 +49,9 @@ const UsersTableView = (props: UsersTableViewProps) => {
                                     <td>{user.first_name} {user.last_name}</td>
                                     <td>{user.email}</td>
                                     <td>{user.user_name}</td>
-                                    <td>{user.role}</td>
+                                    <td className="text-capitalize">{user.role}</td>
                                     <td>{user.status ? "Active" : "Inactive"}</td>
-                                    <td>{new Date(user.created_at).toLocaleDateString()}</td>
+                                    <td>{user.created_at ? formatDate(user.created_at as string): ""}</td>
                                     <td className="text-center">
                                         <button className="btn btn-sm btn-link text-dark" onClick={() => editUser && editUser(user.user_id)}><Edit size={16} /></button>
 

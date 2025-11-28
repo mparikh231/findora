@@ -16,6 +16,8 @@ import { UserContext } from './context/UserContext';
 import ProfilePage from './pages/ProfilePage';
 import ListingManagementPage from './pages/ListingManagementPage';
 import UsersPage from './pages/Admin/UsersPages';
+import CategoriesManagementPage from './pages/Admin/CategoriesManagementPage';
+import StateCityManagementPage from './pages/Admin/StateCityManagementPage';
 
 function App() {
 
@@ -24,25 +26,33 @@ function App() {
 
   return(
     <Routes>
-      <Route path="/" element={<Layout />}>
+      <Route element={<Layout />}>
         <Route index element={<HomePage />} />
-        <Route path="/signin" element={<SignInPage />} />
-        <Route path="/signup" element={<SignUpPage />} />
-        <Route path="/categories/:id" element={<CategoryPage />} />
+        <Route path='/signin' element={<SignInPage />} />
+        <Route path='/signup' element={<SignUpPage />} />
+        <Route path='/category/:id' element={<CategoryPage />} />
       </Route>
       <Route element={<AuthRoute isAuthenticated={!!token} />}>
-        <Route path="/user" element={<UserLayout />}>
+        <Route path='user' element={<UserLayout />}>
           <Route index element={<UserDashboard />} />
-          <Route path="/user/profile" element={<ProfilePage />} />
-          <Route path="/user/listings" element={<ListingManagementPage />} />
+          <Route path='profile' element={<ProfilePage />} />
+          <Route path='states' element={<StateCityManagementPage />} />
+          <Route path='listings' element={<ListingManagementPage />} />
         </Route>
-         <Route path="/admin" element={<AdminLayout />}>
+        <Route path='admin' element={<AdminLayout />}>
           <Route index element={<AdminDashboard />} />
-          <Route path="/admin/profile" element={<ProfilePage />} />
-          <Route path="/admin/listings" element={<ListingManagementPage />} />
-          <Route path="/admin/users" element={<UsersPage />} />
-          <Route path="/admin/users/:action" element={<UsersPage />} />
-          <Route path="/admin/users/:action/:user_id" element={<UsersPage />} />
+          <Route path='profile' element={<ProfilePage />} />
+          <Route path='listings'>
+            <Route index element={<ListingManagementPage />} />
+            <Route path=':action' element={<ListingManagementPage />} />
+            <Route path=':action/:listingId' element={<ListingManagementPage />} />
+            <Route path='categories' element={<CategoriesManagementPage />} />
+          </Route>
+          <Route path='users'>
+            <Route index element={<UsersPage />} />
+            <Route path=':action' element={<UsersPage />} />
+            <Route path=':action/:userId' element={<UsersPage />} />
+          </Route>
         </Route>
       </Route>
     </Routes>
