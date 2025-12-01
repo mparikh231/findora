@@ -195,10 +195,11 @@ const CategoriesManagementPage = () => {
                                             <tr key={`category-tr-${category.id}-${index}`}>
                                                 <td className="text-center">{category.id}</td>
                                                 <td>{category.name}</td>
+                                                <td>{category.parentCategoryName ? category.parentCategoryName.name : '--'}</td>
                                                 <td>{limitString(category.description)}</td>
                                                 <td>{formatDate(category.createdAt)}</td>
                                                 <td className="text-center">
-                                                    <button className="btn btn-sm btn-link text-dark" onClick={() => editCategoryAction(category)}>
+                                                    <button className="btn btn-sm btn-link text-dark me-2" onClick={() => editCategoryAction(category)}>
                                                         <Edit size={16} />
                                                     </button>
 
@@ -221,10 +222,11 @@ const CategoriesManagementPage = () => {
                                                         </div>
                                                     </td>
                                                     <td>{subCategory.name}</td>
+                                                    <td>{category.name}</td>
                                                     <td>{limitString(subCategory.description)}</td>
                                                     <td>{formatDate(subCategory.createdAt)}</td>
                                                     <td className="text-center">
-                                                        <button className="btn btn-sm btn-link text-dark" onClick={() => {editCategoryAction(subCategory)}}>
+                                                        <button className="btn btn-sm btn-link text-dark me-2" onClick={() => {editCategoryAction(subCategory)}}>
                                                             <Edit size={16} />
                                                         </button>
 
