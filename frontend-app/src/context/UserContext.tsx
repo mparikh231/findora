@@ -7,73 +7,86 @@ export const UserContext = createContext<UserContextType | null>(null);
 
 export const UserProvider = ({ children }: { children: React.ReactNode }) => {
 
+    // -------- SAFE TOKEN EXTRACTION -------- //
+    const getTokenFromCookie = () => {
+        return document.cookie
+            .split("; ")
+            .find(row => row.startsWith("findora_token="))
+            ?.split("=")[1] || null;
+    };
+
+    const safeDecode = (token: string | null): userData | null => {
+        if (!token) return null;
+
+        try {
+            return jwtDecode<userData>(token);
+        } catch (err) {
+            console.error("Invalid token:", err);
+            return null;
+        }
+    };
+
+    // -------- TOKEN STATE -------- //
     const [token, setTokenState] = useState<string | null>(() => {
-        try {
-            // get token from cookies
-            const token = document.cookie.split('; ').find(row => row.startsWith('findora_token='))?.split('=')[1] || null;
-            const tokenData = jwtDecode<userData | null>(token || "") || null;
-            return tokenData ? token : null;
-        } catch (error) {
-            console.error("Error decoding token:", error);
-            return null;
-        }
+        const cookieToken = getTokenFromCookie();
+        const tokenData = safeDecode(cookieToken);
+
+        return tokenData ? cookieToken : null;
     });
 
-    const setToken = (token: string | null) => {
-        if (!token) return;
-        try {
-            const tokenData = jwtDecode<userData | null>(token || "") || null;
-            if (!tokenData) return;
-            const expiresAt = (tokenData as any).exp * 1000;
-            if (Date.now() >= expiresAt) {
-                console.warn("Token has already expired.");
-                return;
-            }
-
-            // set token in cookies
-            document.cookie = `findora_token=${token}; path=/; max-age=${(expiresAt - Date.now()) / 1000}`;
-            setTokenState(token);
-            setAuthToken(token);
-            return token;
-        } catch (error) {
-            console.error("Error decoding token:", error);
-            return null;
-        }
-    }
-
+    // -------- USER DATA STATE -------- //
     const [userData, setUserData] = useState<userData | null>(() => {
-        try {
-            const token = document.cookie.split('; ').find(row => row.startsWith('findora_token='))?.split('=')[1] || null;
-            const storedUser = jwtDecode<userData | null>(token || "") || null;
-            return storedUser ? storedUser : null;
-        } catch (error) {
-            console.error("Error decoding token:", error);
-            return null;
-        }
+        const cookieToken = getTokenFromCookie();
+        return safeDecode(cookieToken);
     });
 
-    const setUser = (user: userData | null) => {
-        if (!user) return;
-        setUserData(user);
-    }
+    // -------- SET TOKEN -------- //
+    const setToken = (newToken: string | null) => {
+        if (!newToken) return;
 
-    const clearUserData = () => {
-        setUserData(null);
-    }
+        const tokenData = safeDecode(newToken);
+        if (!tokenData) return;
 
+        const expiresAt = (tokenData as any).exp * 1000;
+        if (Date.now() >= expiresAt) {
+            console.warn("Token already expired");
+            return;
+        }
+
+        // Save in cookie
+        document.cookie = `findora_token=${newToken}; path=/; max-age=${(expiresAt - Date.now()) / 1000}`;
+
+        setTokenState(newToken);
+        setUserData(tokenData);
+        setAuthToken(newToken);
+    };
+
+    // -------- CLEAR TOKEN -------- //
     const clearToken = () => {
         setTokenState(null);
         document.cookie = "findora_token=; path=/; max-age=0";
-    }
+    };
 
+    // -------- CLEAR USER -------- //
+    const clearUserData = () => setUserData(null);
+
+    // -------- LOGOUT -------- //
     const logOut = () => {
         clearUserData();
         clearToken();
-    }
+    };
 
     return (
-        <UserContext.Provider value={{ user: userData, setUser, token, setToken, clearUserData, clearToken, logOut }}>
+        <UserContext.Provider value={{ 
+            user: userData,
+            setUser: setUserData,
+            token,
+            setToken,
+            clearUserData,
+            clearToken,
+            logOut
+        }}>
             {children}
         </UserContext.Provider>
     );
-}
+};

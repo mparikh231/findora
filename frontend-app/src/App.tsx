@@ -33,15 +33,16 @@ function App() {
         <Route path='/category/:id' element={<CategoryPage />} />
       </Route>
       <Route element={<AuthRoute isAuthenticated={!!token} />}>
-        <Route path='user' element={<UserLayout />}>
+        <Route path='/user' element={<UserLayout />}>
           <Route index element={<UserDashboard />} />
           <Route path='profile' element={<ProfilePage />} />
           <Route path='states' element={<StateCityManagementPage />} />
           <Route path='listings' element={<ListingManagementPage />} />
         </Route>
-        <Route path='admin' element={<AdminLayout />}>
+        <Route path='/admin' element={<AdminLayout />}>
           <Route index element={<AdminDashboard />} />
           <Route path='profile' element={<ProfilePage />} />
+          <Route path='states' element={<StateCityManagementPage />} />
           <Route path='listings'>
             <Route index element={<ListingManagementPage />} />
             <Route path=':action' element={<ListingManagementPage />} />

@@ -9,6 +9,9 @@ export const formatDate = (dateString: string): string => {
     return date.toLocaleDateString(undefined, options);
 }
 export const limitString = (input: string, maxLength: number = 50): string => {
+    if (input === null || input === undefined || input === "") {
+        return "";
+    }
     if(input.length <= maxLength){
         return input;
     }

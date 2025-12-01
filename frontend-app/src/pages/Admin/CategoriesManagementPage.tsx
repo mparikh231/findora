@@ -1,6 +1,6 @@
 import { Card, CardBody, CardFooter, CardHeader } from "reactstrap";
 import { useEffect, useState } from "react";
-import { Edit, Save, Trash, CornerDownRight } from "lucide-react";
+import { Edit, Save, Trash, CornerDownRight, X } from "lucide-react";
 import { formatDate, limitString } from "../../utils/helpers";
 import  type { CategoryData, CategoryFormData } from "../../types/categories";
 import apiCall from "../../utils/axios";
@@ -12,35 +12,31 @@ const CategoriesManagementPage = () => {
     const defaultCategoryFormData = {
         name: "",
         parentId: undefined,
-        description: ""
+        description: "",
+        id: undefined
     };
 
     const [isLoading, setIsLoading] = useState<boolean>(true);
-
+    const [isFormLoading, setIsFormLoading] = useState<boolean>(false);
     const [categories, setCategories] = useState<CategoryData[]>([]);
     const [categoryFormData, setCategoryFormData] = useState<CategoryFormData>(defaultCategoryFormData);
     const [deleteCategoryId, setDeleteCategoryId] = useState<number | null>(null);
     const [isConfirmModalOpen, setIsConfirmModalOpen] = useState<boolean>(false);
+    const [action, setAction] = useState<"add" | "edit">("add");
 
-    const handleAddNewCategoryFormSubmit = async (e: React.FormEvent) => {
-        e.preventDefault();
-        try {
-            const payload: CategoryFormData = {
-                name: categoryFormData.name,
-            };
-            if(categoryFormData.parentId) payload.parentId = categoryFormData.parentId;
-            if(categoryFormData.description) payload.description = categoryFormData.description;
+    
+        const loadCategories = async () => {
+            try {
+                setIsLoading(true);
+                const response = await apiCall.get("/categories");
+                const { status, data } = response.data;
 
-            setIsLoading(true);
-            const response = await apiCall.post("/categories", payload);
-            const { status } = response.data;
-            if(status === false) {
-                toast.error("Failed to add category. Please try again.");
-                return;
-            }
-            toast.success("Category added successfully.");
-            setCategoryFormData(defaultCategoryFormData);
-        } catch (error) {
+                 if(status === false) {
+                    setCategories([]);
+                    return;
+                } setCategories (data as CategoryData[]);
+           
+            } catch (error) {
             console.error("Error adding category:", error);
             toast.error("Failed to add category. Please try again.");
         } finally {
@@ -48,23 +44,41 @@ const CategoriesManagementPage = () => {
         }
     }
 
-    const loadCategories = async () => {
+    const handleCategoryFormSubmit = async (e: React.FormEvent) => {
+        e.preventDefault();
         try {
-            setIsLoading(true);
-            const response = await apiCall.get("/categories");
-            const { status, data } = response.data;
-            if( status === false ) {
-                toast.error("Failed to load categories. Please try again.");
+            const payload: CategoryFormData = {
+                name: categoryFormData.name,
+                parentId: categoryFormData.parentId ? categoryFormData.parentId : "0"
+            };
+            if (categoryFormData.description) payload.description = categoryFormData.description;
+
+            setIsFormLoading(true);
+            let response;
+            if (action === "edit" && categoryFormData.id) {
+                response = await apiCall.put(`/categories/${categoryFormData.id}`, payload);
+            } else {
+                response = await apiCall.post('/categories', payload);
+            }
+
+            const { status } = response.data;
+            if (status === false) {
+                toast.error(`Failed to ${action === "edit" ? "update" : "add"} category. Please try again.`);
                 return;
             }
-            setCategories(data as CategoryData[]);
+
+            toast.success(`Category ${action === "edit" ? "updated" : "added"} successfully!`);
+            setAction("add");
+            setCategoryFormData(defaultCategoryFormData);
+            loadCategories();
         } catch (error) {
-            console.error("Error loading categories:", error);
-            toast.error("Failed to load categories. Please try again.");
+            console.error(`Error ${action === "edit" ? "updating" : "adding"} category:`, error);
+            toast.error(`Failed to ${action === "edit" ? "update" : "add"} category. Please try again.`);
         } finally {
-            setIsLoading(false);
+            setIsFormLoading(false);
         }
     }
+
 
     const deleteCategory = async (categoryId: number) => {
         try {
@@ -87,6 +101,16 @@ const CategoriesManagementPage = () => {
         };
     }
 
+    const editCategoryAction = (category: CategoryData) => {
+        setAction("edit");
+        setCategoryFormData({
+            name: category.name,
+            parentId: category.parentCategoryId !== 0 ? category.parentCategoryId.toString() : undefined,
+            description: category.description || '',
+            id: category.id
+        });
+    };
+
     useEffect(() => {
         loadCategories();
     }, []);
@@ -97,29 +121,44 @@ const CategoriesManagementPage = () => {
         </div>
 
         <div className="row">
-            <form onSubmit={handleAddNewCategoryFormSubmit} className="col-md-4 col-lg-3">
+            <form onSubmit={handleCategoryFormSubmit} className="col-md-4 col-lg-3">
                 <Card>
-                    <CardHeader>Add New Category</CardHeader>
+                    <CardHeader>{action === "add" ? "Add New Category" : "Edit Category"}</CardHeader>
                         <CardBody>
                         <div className="mb-3">
                             <label htmlFor="categoryName" className="form-label">Category Name*:</label>
-                            <input type="text" id="categoryName" className="form-control" onChange={(e) => setCategoryFormData({ ...categoryFormData, name: e.target.value})} value={categoryFormData?.name || ''} required={isLoading} />
+                            <input type="text" id="categoryName" className="form-control" onChange={(e) => setCategoryFormData({ ...categoryFormData, name: e.target.value})} value={categoryFormData?.name || ''} required disabled={isFormLoading} />
                         </div>
-                        <div className="mb-3">
+                        {!categories || categories.length === 0 ? null : (
+                            <div className="mb-3">
                             <label htmlFor="parentCategory" className="form-label">Category Description:</label>
-                            <select id="parentCategory" className="form-select" onChange={(e) => setCategoryFormData({ ...categoryFormData, parentId: e.target.value || undefined })} value={categoryFormData?.parentId || ''} disabled={isLoading}>
+                            <select id="parentCategory" className="form-select" onChange={(e) => setCategoryFormData({ ...categoryFormData, parentId: e.target.value || undefined })} value={categoryFormData?.parentId || ''} disabled={isFormLoading}>
                                 <option value="">-- None --</option>
+                                {categories.map((category) => (
+                                    <option key={`parent-category-option-${category.id}`} value={category.id}>
+                                        {category.name}
+                                    </option>
+                                ))}
                             </select>
                         </div>
+                        )}
                         <div>
                             <label htmlFor="categoryDescription" className="form-label">Category Description:</label>
-                            <textarea id="categoryDescription" className="form-control" rows={3} onChange={(e) => setCategoryFormData({ ...categoryFormData, description: e.target.value})} value={categoryFormData?.description || ''} disabled={isLoading}></textarea>
+                            <textarea id="categoryDescription" className="form-control" rows={3} onChange={(e) => setCategoryFormData({ ...categoryFormData, description: e.target.value})} value={categoryFormData?.description || ''} disabled={isFormLoading}></textarea>
                         </div>
                     </CardBody>
-                    <CardFooter>
-                        <button className="btn btn-dark d-flex align-items-center gap-1" disabled={isLoading} type="submit">
-                            <Save size={16} /> {isLoading ? "Saving..." : "Save"}
+                    <CardFooter className="d-flex align-items-center gap-1">
+                        <button className="btn btn-dark d-flex align-items-center gap-1" disabled={isFormLoading} type="submit">
+                            <Save size={18} /> {isFormLoading ? "Saving..." : "Save"}
                         </button>
+                        {action === 'edit' && (
+                            <button className="btn btn-secondary ms-2" disabled={isFormLoading} onClick={() => {
+                                setAction('add');
+                                setCategoryFormData(defaultCategoryFormData)
+                            }}>
+                                <X size={18} />Cancel
+                            </button>
+                        )}
                     </CardFooter>
                 </Card>
             </form>
@@ -159,7 +198,7 @@ const CategoriesManagementPage = () => {
                                                 <td>{limitString(category.description)}</td>
                                                 <td>{formatDate(category.createdAt)}</td>
                                                 <td className="text-center">
-                                                    <button className="btn btn-sm btn-link text-dark">
+                                                    <button className="btn btn-sm btn-link text-dark" onClick={() => editCategoryAction(category)}>
                                                         <Edit size={16} />
                                                     </button>
 
@@ -185,7 +224,7 @@ const CategoriesManagementPage = () => {
                                                     <td>{limitString(subCategory.description)}</td>
                                                     <td>{formatDate(subCategory.createdAt)}</td>
                                                     <td className="text-center">
-                                                        <button className="btn btn-sm btn-link text-dark">
+                                                        <button className="btn btn-sm btn-link text-dark" onClick={() => {editCategoryAction(subCategory)}}>
                                                             <Edit size={16} />
                                                         </button>
 
