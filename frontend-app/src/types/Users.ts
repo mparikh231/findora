@@ -16,10 +16,10 @@ export interface UserContextType {
     logOut?: () => void;
 }
 export interface UserProfileFormData{
-    first_name?: string;
-    last_name?: string;
+    first_name: string;
+    last_name: string;
     email: string;
-    password?: string;
+    password: string;
 }
 export interface UserActionSidebarProps {
     isOpen: boolean;

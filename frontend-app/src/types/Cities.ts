@@ -1,7 +1,6 @@
-export interface StateFormData {
+export interface CityFormData {
     name: string;
-    stateId: number;
-    id?: number;
+    id?: number | null;
 }
 
 export interface CityData {
@@ -9,9 +8,10 @@ export interface CityData {
     name: string;
     createdAt: string;
     stateId: number;
+    stateName?: string;
 }
 
 export interface CityProps {
     stateId: number;
-    stateName?: string;
+    stateName?: string | null;
 }

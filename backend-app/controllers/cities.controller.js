@@ -24,7 +24,7 @@ const getCities = async (req, res) => {
         if (!allCities || allCities.length <= 0) {
             return res.json({ status: false, message: 'No cities found' });
         }
-        return res.json({ status: true, message: 'Cities fetched successfully', citiesData: allCities });
+        return res.json({ status: true, message: 'Cities fetched successfully', data: allCities });
     } catch (error) {
         console.error('Error during city fetching:', error);
         return res.status(500).json({ status: false, message: error.message || 'Internal server error' });
@@ -44,7 +44,7 @@ const getCity = async (req, res) => {
             .from(cities)
             .innerJoin(states, eq(cities.stateId, states.id))
             .where(eq(cities.id, cityId));
-        return res.json({ status: true, message: 'City fetched successfully', cityData: city });
+        return res.json({ status: true, message: 'City fetched successfully', data: city });
     } catch (error) {
         console.error('Error during city fetching:', error);
         return res.status(500).json({ status: false, message: error.message || 'Internal server error' });
@@ -66,7 +66,7 @@ const addCity = async (req, res) => {
         if (!newCity || newCity.length <= 0) {
             return res.status(500).json({ status: false, message: 'Failed to add city' });
         }
-        return res.json({ status: true, message: 'City added successfully', cityData: newCity });
+        return res.json({ status: true, message: 'City added successfully', data: newCity });
     } catch (error) {
         console.error('Error during city addition:', error);
         return res.status(500).json({ status: false, message: error.message || 'Internal server error' });
@@ -92,7 +92,7 @@ const updateCity = async (req, res) => {
         }
 
         const updatedCity = await db.update(cities).set(updateValues).where(eq(cities.id, cityId)).returning();
-        return res.json({ status: true, message: 'City updated successfully', cityData: updatedCity });
+        return res.json({ status: true, message: 'City updated successfully', data: updatedCity });
     } catch (error) {
         console.error('Error during city update:', error);
         return res.status(500).json({ status: false, message: error.message || 'Internal server error' });

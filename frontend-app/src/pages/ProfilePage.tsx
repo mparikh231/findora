@@ -20,12 +20,11 @@ const ProfilePage = () => {
         password: ""
     });
 
-    const handleFormSubmit = async(e: React.FormEvent) => {
-       try {
-
+    const handleFormSubmit = async (e: React.FormEvent) => {
+        try {
             e.preventDefault();
-            if(isLoading) return;
-            if(formData.email && !checkEmailFormat(formData.email)) {
+            if (isLoading) return;
+            if (formData.email && !checkEmailFormat(formData.email)) {
                 toast.error("Please enter a valid email address.");
                 return;
             }
@@ -33,22 +32,22 @@ const ProfilePage = () => {
             const updateUserPayload = {
                 first_name: formData.first_name,
                 last_name: formData.last_name,
-                email: formData.email,
+                email: formData.email
             };
 
-            if(formData.password) {
+            if (formData.password) {
                 (updateUserPayload as any).password = formData.password;
             }
 
             setIsLoading(true);
-            const response = await apiCall.put(`/profile/${user?.user_id}`, updateUserPayload, {
+            const response = await apiCall.put("/profile", updateUserPayload, {
                 headers: {
-                    Authorization: `Bearer ${token}`
+                    Authorization: `Bearer ${token}`,
                 }
             });
 
             const userData = response.data.userData;
-            if(response.data.status !== true || !userData) {
+            if (response.data.status !== true || !userData) {
                 toast.error(response.data.message || "Failed to update profile. Please try again.");
                 return;
             }
@@ -66,7 +65,7 @@ const ProfilePage = () => {
         } catch (error) {
             console.error("Error updating profile:", error);
             toast.error("An error occurred while updating the profile. Please try again.");
-        }finally {
+        } finally {
             setIsLoading(false);
         }
     };
@@ -125,13 +124,13 @@ const ProfilePage = () => {
                                 {showPassword ? <Eye /> : <EyeOff />}
                             </button>
                         </div>
-
                     </div>
                 </div>
-
             </div>
             <div className="card-footer">
-                <button className="btn btn-dark d-flex align-items-center gap-1" disabled={isLoading}><Save size={18} />{isLoading ? " Saving..." : " Save"}</button>
+                <button className="btn btn-dark d-flex align-items-center gap-1" disabled={isLoading}>
+                    <Save size={18} /> {isLoading ? 'Saving...' : 'Save'}
+                </button>
             </div>
         </form>
     </>;
