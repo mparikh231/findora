@@ -1,4 +1,5 @@
 import { Card, CardBody, CardFooter, CardHeader } from "reactstrap";
+import React from "react"; 
 import { useEffect, useState } from "react";
 import { Edit, Save, Trash, CornerDownRight, X } from "lucide-react";
 import { formatDate, limitString } from "../../utils/helpers";
@@ -191,7 +192,7 @@ const CategoriesManagementPage = () => {
                                 {!isLoading && categories.length > 0 && categories.map((category, index) => {
                                     const subCategories = category.subCategories || [];
                                     return (
-                                        <>
+                                        <React.Fragment key={`category-wrapper-${category.id}`}>
                                             <tr key={`category-tr-${category.id}-${index}`}>
                                                 <td className="text-center">{category.id}</td>
                                                 <td>{category.name}</td>
@@ -242,7 +243,7 @@ const CategoriesManagementPage = () => {
                                                     </td>
                                                 </tr>
                                             ))}
-                                        </>
+                                        </React.Fragment>
                                     )
                                 })}
                             </tbody>

@@ -13,8 +13,8 @@ router.use('/auth', authRoutes);
 router.use('/users', verifyToken, isAdmin, usersRoutes);
 router.use('/profile', verifyToken, profileRoutes);
 router.use('/listings', listingsRoutes);
-router.use('/states', verifyToken, isAdmin, statesRoutes);
-router.use('/cities', verifyToken, citiesRoutes);
+router.use('/states', statesRoutes);
+router.use('/cities', citiesRoutes);
 router.use('/categories', categoriesRoutes);
 
 module.exports = router;
