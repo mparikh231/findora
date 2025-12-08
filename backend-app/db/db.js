@@ -7,5 +7,5 @@ const pool = new Pool({
 });
 
 // create Drizzle instance
-const db = drizzle(pool);
+const db = drizzle(pool, { logger: true });
 module.exports = db;

@@ -72,7 +72,7 @@ const ListingsTableView = (props: ListingsTableViewProps) => {
                                                 </div>
                                                 <div className="listing-meta-data d-flex align-items-center gap-1">
                                                     <User size={14} />
-                                                    <small>{listing.user?.userName || 'Unknown'} ({listing.user?.email || 'N/A'})</small>
+                                                    <small>{listing.user?.user_name || 'Unknown'} ({listing.user?.email || 'N/A'})</small>
                                                 </div>
                                                 <div className="listing-meta-data d-flex align-items-center gap-3">
                                                     <small><b><IndianRupee size={14} />{listing.price?.toLocaleString('en-IN')}</b></small>

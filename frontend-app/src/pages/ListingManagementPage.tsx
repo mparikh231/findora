@@ -48,9 +48,10 @@ const ListingManagementPage = () => {
             }
             setListings(listingData);
         } catch (error) {
-            console.error("Error fetching listings:", error);
-            setListings([]);
-            toast.error("Failed to fetch listings. Please try again later.");
+                console.error("Error fetching listings:",error);
+                toast.error("Failed to fetch listings.");
+                setListings([]);
+            
         } finally {
             setIsLoading(false);
         }

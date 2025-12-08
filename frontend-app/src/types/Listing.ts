@@ -1,10 +1,10 @@
 // User and Category nested types
 export interface ListingUser {
     id: number;
-    userName: string;
+    user_name: string;
     email: string;
-    firstName: string;
-    lastName: string;
+    first_name: string;
+    last_name: string;
 }
 
 export interface ListingCategory {
@@ -32,13 +32,13 @@ export interface Listing {
     location: string;
     price: number;
     featuredImageUrl: string | null;
-    imageUrls: string[];
+    imageUrls: string[] | null;
     isAvailable: boolean;
     status: 'active' | 'rejected' | 'pending';
-    user: ListingUser;
-    category: ListingCategory;
-    state: ListingState;
-    city: ListingCity;
+    user: ListingUser | null;
+    category: ListingCategory | null;
+    state: ListingState | null;
+    city: ListingCity | null;
     createdAt: string | Date;
     updatedAt: string | Date;
 }

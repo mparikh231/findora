@@ -4,21 +4,21 @@ const { eq, desc, and } = require('drizzle-orm');
 
 const getListings = async (req, res) => {
     try {
-
-        const { user_id, categoryId, stateId, cityId } = req.query;
+        const { userId, categoryId, stateId, cityId, limit = 100 } = req.query;
         const whereConditions = [];
-        if(user_id) {
-            whereConditions.push(eq(listings.user_id, parseInt(user_id, 10)));
+        if (userId && !isNaN(parseInt(userId, 10))) {
+            whereConditions.push(eq(listings.user_id, parseInt(userId, 10)));
         }
-        if(categoryId) {
+        if (categoryId && !isNaN(parseInt(categoryId, 10))) {
             whereConditions.push(eq(listings.categoryId, parseInt(categoryId, 10)));
         }
-        if(stateId) {
+        if (stateId && !isNaN(parseInt(stateId, 10))) {
             whereConditions.push(eq(listings.stateId, parseInt(stateId, 10)));
         }
-        if(cityId) {
+        if (cityId && !isNaN(parseInt(cityId, 10))) {
             whereConditions.push(eq(listings.cityId, parseInt(cityId, 10)));
         }
+
         const listingData = await db.select({
             id: listings.id,
             title: listings.title,
@@ -59,7 +59,8 @@ const getListings = async (req, res) => {
             .leftJoin(states, eq(listings.stateId, states.id))
             .leftJoin(cities, eq(listings.cityId, cities.id))
             .where(whereConditions.length > 0 ? and(...whereConditions) : undefined)
-            .orderBy(desc(listings.id));
+            .orderBy(desc(listings.id))
+            .limit(parseInt(limit, 10));
         res.json({ status: true, message: 'Listings retrieved successfully', listingData });
     } catch (error) {
         console.error('Error during listing retrieval:', error);
@@ -70,7 +71,7 @@ const getListings = async (req, res) => {
 const getListing = async (req, res) => {
     try {
         const listingId = req.params.id;
-        const listingData = await await db.select({
+        const listingData = await db.select({
             id: listings.id,
             title: listings.title,
             description: listings.description,
@@ -123,7 +124,7 @@ const getListing = async (req, res) => {
 
 const addListing = async (req, res) => {
     try {
-        const { title, description, price, location, isAvailable, status, categoryId, subCategoryId, stateId, cityId, user_id } = req.body;
+        const { title, description, price, location, isAvailable, status, categoryId, stateId, cityId, userId } = req.body;
 
         // Basic validation
         if (!title || !description || !price || !location) {
@@ -137,9 +138,9 @@ const addListing = async (req, res) => {
         const sanitizedPrice = parseFloat(price, 10);
         const sanitizedIsAvailable = typeof isAvailable !== 'undefined' ? (isAvailable === 'true' || isAvailable === true || isAvailable === 1 || isAvailable === "1" ? true : false) : true;
         let sanitizedStatus = 'pending';
-        const sanitizedUser_id = (req.role === 'admin' && user_id) ? user_id : req.user_id;
+        const sanitizedUserId = (req.userRole === 'admin' && userId) ? userId : req.userId;
 
-        if (status && req.role === 'admin') {
+        if (status && req.userRole === 'admin') {
             const validStatuses = ['active', 'rejected', 'pending'];
             if (!validStatuses.includes(status)) {
                 return res.status(400).json({ status: false, message: 'Invalid status value' });
@@ -154,9 +155,8 @@ const addListing = async (req, res) => {
             location: sanitizedLocation,
             isAvailable: sanitizedIsAvailable,
             status: sanitizedStatus,
-            user_id: sanitizedUser_id,
+            user_id: sanitizedUserId,
             categoryId,
-            subCategoryId,
             stateId,
             cityId
         }).returning();
@@ -175,17 +175,7 @@ const addListing = async (req, res) => {
 const updateListing = async (req, res) => {
     try {
         const listingId = req.params.id;
-        return res.json({ status: true, message: 'Listing updated successfully', listingData: {} });
-    } catch (error) {
-        console.error('Error during listing update:', error);
-        return res.status(500).json({ status: false, message: error.message || 'Internal server error' });
-    }
-}
-
-const deleteListing = async (req, res) => {
-    try {
-        const listingId = req.params.id;
-        const { title, description, price, location, isAvailable, status, categoryId, subCategoryId, stateId, cityId, user_id } = req.body;
+        const { title, description, price, location, isAvailable, status, categoryId, subCategoryId, stateId, cityId, userId } = req.body;
 
         const updateData = {};
         if (title && title.trim() !== '') updateData.title = String(title).trim();
@@ -197,13 +187,15 @@ const deleteListing = async (req, res) => {
         if (subCategoryId) updateData.subCategoryId = subCategoryId;
         if (stateId) updateData.stateId = stateId;
         if (cityId) updateData.cityId = cityId;
-        if (req.role === 'admin' && user_id) updateData.user_id = user_id;
-        if (status && req.role === 'admin') {
-            const validStatuses = ['active', 'rejected', 'pending'];
-            if (!validStatuses.includes(status)) {
-                return res.status(400).json({ status: false, message: 'Invalid status value' });
+        if (req.userRole === 'admin') {
+            if (userId) updateData.userId = userId;
+            if (status) {
+                const validStatuses = ['active', 'rejected', 'pending'];
+                if (!validStatuses.includes(status)) return res.status(400).json({ status: false, message: 'Invalid status value' });
+                updateData.status = status;
             }
-            updateData.status = status;
+        } else {
+            updateData.status = 'pending';
         }
         if (Object.keys(updateData).length === 0) {
             return res.status(400).json({ status: false, message: 'No valid fields provided for update' });
@@ -212,6 +204,20 @@ const deleteListing = async (req, res) => {
         const updatedListing = await db.update(listings).set(updateData).where(eq(listings.id, listingId)).returning();
 
         return res.json({ status: true, message: 'Listing updated successfully', listingData: updatedListing[0] });
+    } catch (error) {
+        console.error('Error during listing update:', error);
+        return res.status(500).json({ status: false, message: error.message || 'Internal server error' });
+    }
+}
+
+const deleteListing = async (req, res) => {
+    try {
+        const listingId = req.params.id;
+        const deletedCount = await db.delete(listings).where(eq(listings.id, listingId)).returning().then(result => result.length);
+        if (deletedCount === 0) {
+            return res.status(404).json({ status: false, message: 'Listing not found' });
+        }
+        return res.json({ status: true, message: 'Listing deleted successfully' });
     } catch (error) {
         console.error('Error during listing deletion:', error);
         return res.status(500).json({ status: false, message: error.message || 'Internal server error' });

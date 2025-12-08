@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import { UserContext } from "../../src/context/UserContext";
 import { CircleUser } from "lucide-react";
 import SignOutModel from "../components/SignOutModal";
+import CityDropdown from "../components/Cities/CityDropdown";
 
 const Header = () => {
     const userContext = useContext(UserContext);
@@ -21,7 +22,10 @@ const Header = () => {
             <header className="bg-white border-bottom py-2">
                 <div className="container">
                     <div className="d-flex justify-content-between align-items-center">
-                        <Link to="/" className="text-decoration-none h5 mb-0 text-uppercase">Findora</Link>
+                        <div className="d-flex align-items-center gap-3">
+                            <Link to="/" className="text-decoration-none h5 mb-0 text-uppercase">Findora</Link>
+                            <CityDropdown />
+                        </div>
                         <div id="navbarNav">
                             <ul className="nav">
                                 <li className="nav-item">

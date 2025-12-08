@@ -1,40 +1,97 @@
-import { useParams } from 'react-router-dom';
-import ListingCard from '../components/ListingCard';
+import { useParams } from "react-router-dom";
+import ListingCard from "../components/ListingCard";
+import { useContext, useEffect, useState } from "react";
+import { CityContext } from "../context/CityContext";
+import apiCall from "../utils/axios";
+import type { Listing } from "../types/Listing";
+import Banner from "../layouts/Banner";
 
 const CategoryPage = () => {
     const { id: categoryId } = useParams();
+    const cityContext = useContext(CityContext);
+    const { selectedCity, isInitialized } = cityContext!;
 
-    const listings = [
-        { id: 1, title: "Listing 1", description: "Description for Listing 1", price: 100, image: "https://dummyimage.com/300x200/000/fff" },
-        { id: 2, title: "Listing 2", description: "Description for Listing 2", price: 200, image: "https://dummyimage.com/300x200/000/fff" },
-        { id: 3, title: "Listing 3", description: "Description for Listing 3", price: 300, image: "https://dummyimage.com/300x200/000/fff" },
-        { id: 4, title: "Listing 4", description: "Description for Listing 4", price: 400, image: "https://dummyimage.com/300x200/000/fff" },
-        { id: 5, title: "Listing 5", description: "Description for Listing 5", price: 500, image: "https://dummyimage.com/300x200/000/fff" },
-        { id: 6, title: "Listing 6", description: "Description for Listing 6", price: 600, image: "https://dummyimage.com/300x200/000/fff" },
-        { id: 7, title: "Listing 7", description: "Description for Listing 7", price: 700, image: "https://dummyimage.com/300x200/000/fff" },
-        { id: 8, title: "Listing 8", description: "Description for Listing 8", price: 800, image: "https://dummyimage.com/300x200/000/fff" }
-    ];
+    const [listings, setListings] = useState<Listing[]>([]);
+    const [isLoading, setIsLoading] = useState<boolean>(true);
+    const [categoryName, setCategoryName] = useState<string>("");
+
+    useEffect(() => {
+        if (!isInitialized) return;
+
+        const fetchListings = async () => {
+            try {
+                setIsLoading(true);
+                const params: any = {};
+                if (categoryId) {
+                    params.categoryId = categoryId;
+                }
+                if (selectedCity) {
+                    params.cityId = selectedCity.id;
+                }
+                const response = await apiCall.get("/listings", { params });
+                if (response.data.status) {
+                    setListings(response.data.listingData || []);
+                }
+            } catch (error: any) {
+                console.error("Error fetching listings:", error);
+            } finally {
+                setIsLoading(false);
+            }
+        };
+
+        fetchListings();
+    }, [categoryId, selectedCity, isInitialized]);
+
+    useEffect(() => {
+        const fetchCategory = async () => {
+            if (!categoryId) return;
+            try {
+                const response = await apiCall.get(`/categories/${categoryId}`);
+                if (response.data.status && response.data.data) {
+                    setCategoryName(response.data.data.name || "");
+                }
+            } catch (error: any) {
+                console.error("Error fetching category:", error);
+            }
+        };
+
+        fetchCategory();
+    }, [categoryId]);
 
     return (
-        <section className="">
-            <div className='banner banner-sm bg-secondary text-white mb-4 py-4'>
-                <div className='container'>
-                    <h1 className='display-6 text-white h3 mb-0'>Category {categoryId}</h1>
-                </div>
-            </div>
-            <div className='container mt-5'>
-                <div className="row">
-                    {listings.length === 0 && (<p>No listings available.</p>)}
-                    {listings.length > 0 && (
-                        <div className="row">
-                            {listings.map(listing => (
-                                <div key={listing.id} className="col-md-3">
-                                    <ListingCard listing={listing} />
-                                </div>
-                            ))}
+        <section className="category-page">
+            <Banner
+                title={categoryName || `Category ${categoryId || ""}`}
+                size="small"
+            />
+            <div className="container mt-5">
+                {isLoading && (
+                    <div className="d-flex justify-content-center py-5">
+                        <div className="spinner-border text-primary" role="status">
+                            <span className="visually-hidden">Loading...</span>
                         </div>
-                    )}
-                </div>
+                    </div>
+                )}
+                {!isLoading && listings.length === 0 && (
+                    <div className="alert alert-info" role="alert">
+                        <h5 className="alert-heading">No listings found!</h5>
+                        <p className="mb-0">
+                            {selectedCity
+                                ? `No listings available in this category for ${selectedCity.name}. Try selecting a different city.`
+                                : "No listings available in this category. Please select a city to see listings."}
+                        </p>
+                    </div>
+                )}
+                {!isLoading && listings.length > 0 && (
+                    <div className="row">
+
+                        {listings.map((listing) => (
+                            <div key={`category-listing-${listing.id}`} className="col-md-3">
+                                <ListingCard listing={listing} />
+                            </div>
+                        ))}
+                    </div>
+                )}
             </div>
         </section>
     );
