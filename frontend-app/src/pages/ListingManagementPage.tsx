@@ -59,7 +59,7 @@ const ListingManagementPage = () => {
 
     // Fetch listing by ID for editing
     const fetchListingById = async (listingId: number) => {
-        try {
+        try {   
             setIsListingDataLoading(true);
             const response = await apiCall.get(`/listings/${listingId}`);
             const { status, listingData } = response.data;
