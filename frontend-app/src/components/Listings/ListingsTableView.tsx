@@ -3,7 +3,7 @@ import { Link } from "react-router-dom";
 import type { ListingsTableViewProps } from "../../types/Listing";
 import { Modal, ModalBody, ModalFooter, ModalHeader } from "reactstrap";
 import { useState } from "react";
-import { formatDate } from "../../utils/helpers";
+import { formatDate, formatNumber } from "../../utils/helpers";
 
 const ListingsTableView = (props: ListingsTableViewProps) => {
     const { listings, isLoading = false, editListing, deleteListing, toggleAvailability } = props;
@@ -75,7 +75,7 @@ const ListingsTableView = (props: ListingsTableViewProps) => {
                                                     <small>{listing.user?.user_name || 'Unknown'} ({listing.user?.email || 'N/A'})</small>
                                                 </div>
                                                 <div className="listing-meta-data d-flex align-items-center gap-3">
-                                                    <small><b><IndianRupee size={14} />{listing.price?.toLocaleString('en-IN')}</b></small>
+                                                    <small><b><IndianRupee size={14} />{formatNumber(listing.price)}</b></small>
                                                     <div className="listing-action d-flex align-items-center gap-2">
                                                         <button
                                                             onClick={() => editListing && editListing(listing.id)}

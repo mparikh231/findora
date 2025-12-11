@@ -61,7 +61,7 @@ const HomePage = () => {
                 size="large"
             />
 
-            <section className="features">
+            <section className="features mt-5 mb-3">
                 <div className="container">
                     <div className="row">
                         <div className="col-md-9">
@@ -85,7 +85,7 @@ const HomePage = () => {
                             {!isLoading && listings.length > 0 && (
                                 <div className="row">
                                     {listings.map((listing) => (
-                                        <div key={`home-listing-${listing.id}`} className="col-md-4">
+                                        <div key={`home-listing-${listing.id}`} className="col-md-4 mb-4">
                                             <ListingCard listing={listing} />
                                         </div>
                                     ))}

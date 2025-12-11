@@ -1,6 +1,6 @@
 const db = require('../db/db');
 const { listings, users, categories, states, cities } = require('../db/schema');
-const { eq, desc, and } = require('drizzle-orm');
+const { eq, desc, and, or, inArray } = require('drizzle-orm');
 
 const getListings = async (req, res) => {
     try {
@@ -10,7 +10,9 @@ const getListings = async (req, res) => {
             whereConditions.push(eq(listings.user_id, parseInt(userId, 10)));
         }
         if (categoryId && !isNaN(parseInt(categoryId, 10))) {
-            whereConditions.push(eq(listings.categoryId, parseInt(categoryId, 10)));
+            const childCategories = await db.select({ id: categories.id }).from(categories).where(eq(categories.parentCategoryId, parseInt(categoryId, 10)));
+            const categoryIds = [parseInt(categoryId, 10), ...childCategories.map(cat => cat.id)];
+            whereConditions.push(inArray(listings.categoryId, categoryIds));
         }
         if (stateId && !isNaN(parseInt(stateId, 10))) {
             whereConditions.push(eq(listings.stateId, parseInt(stateId, 10)));

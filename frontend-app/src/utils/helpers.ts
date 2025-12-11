@@ -17,3 +17,16 @@ export const limitString = (input: string, maxLength: number = 50): string => {
     }
     return input.substring(0, maxLength) + "...";
 }
+// Format number with thousand separators and decimal places
+export const formatNumber = (value: number | string, decimals: number = 2): string => {
+    const numValue = typeof value === 'string' ? parseFloat(value) : value;
+    
+    if (isNaN(numValue)) {
+        return '0.00';
+    }
+    
+    return numValue.toLocaleString('en-US', {
+        minimumFractionDigits: decimals,
+        maximumFractionDigits: decimals
+    });
+}

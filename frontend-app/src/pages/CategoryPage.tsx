@@ -86,7 +86,7 @@ const CategoryPage = () => {
                     <div className="row">
 
                         {listings.map((listing) => (
-                            <div key={`category-listing-${listing.id}`} className="col-md-3">
+                            <div key={`category-listing-${listing.id}`} className="col-md-3 mb-4">
                                 <ListingCard listing={listing} />
                             </div>
                         ))}

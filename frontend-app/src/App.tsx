@@ -18,6 +18,7 @@ import ListingManagementPage from './pages/ListingManagementPage';
 import UsersPage from './pages/Admin/UsersPages';
 import CategoriesManagementPage from './pages/Admin/CategoriesManagementPage';
 import StateCityManagementPage from './pages/Admin/StateCityManagementPage';
+import ListingDetailsPage from './pages/ListingsDetailsPage';
 
 function App() {
 
@@ -31,6 +32,7 @@ function App() {
         <Route path='/signin' element={<SignInPage />} />
         <Route path='/signup' element={<SignUpPage />} />
         <Route path='/category/:id' element={<CategoryPage />} />
+        <Route path='/listing/:id' element={<ListingDetailsPage />} />
       </Route>
       <Route element={<AuthRoute isAuthenticated={!!token} />}>
         <Route path='/user' element={<UserLayout />}>
