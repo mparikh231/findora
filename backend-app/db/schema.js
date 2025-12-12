@@ -1,4 +1,4 @@
-import { boolean, date, integer, pgEnum, pgTable, text, timestamp } from "drizzle-orm/pg-core";
+import { boolean, integer, pgEnum, pgTable, text, timestamp } from "drizzle-orm/pg-core";
 
 export const userRoles = pgEnum("user_roles", ["admin", "user"]);
 export const listingStatuses = pgEnum("listing_statuses", ["active", "rejected", "pending"]);
@@ -35,8 +35,6 @@ export const cities = pgTable("cities", {
     stateId: integer("state_id").notNull().references(() => states.id, { onDelete: "cascade" }),
     createdAt: timestamp("created_at").defaultNow().notNull(),
 });
-
-
 export const listings = pgTable("listings", {
     id: integer("id").primaryKey().generatedAlwaysAsIdentity(),
     title: text("title").notNull(),
@@ -60,4 +58,9 @@ export const listings = pgTable("listings", {
         .references(() => categories.id, { onDelete: "set null" }),
     createdAt: timestamp("created_at").defaultNow().notNull(),
     updatedAt: timestamp("updated_at").defaultNow().notNull(),
+});
+export const options = pgTable("options", {
+    id: integer("id").primaryKey().generatedAlwaysAsIdentity(),
+    optionKey: text("option_key").notNull().unique(),
+    optionValue: text("option_value"),
 });
