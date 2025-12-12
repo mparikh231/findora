@@ -23,7 +23,7 @@ const NavigationMenuManager = () => {
     const loadNavigationMenu = async () => {
         try {
             setIsLoading(true);
-            const response = await apiCall.get('/options/navigation_menu');
+            const response = await apiCall.get('/navigation_menu');
             const { status, data } = response.data;
             
             if (status && data && data.optionValue) {

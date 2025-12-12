@@ -9,12 +9,12 @@ const {
 } = require('../controllers/options.controller');
 
 // Public route - for fetching navigation menu on frontend
-router.get('/:navigation_menu', getOption);
+router.get('/:key', getOption);
 
 // Admin routes - protected
 router.get('/', verifyToken, isAdmin, getAllOptions);
 router.post('/', verifyToken, isAdmin, createOrUpdateOption);
-router.put('/:navigation_menu', verifyToken, isAdmin, createOrUpdateOption);
-router.delete('/:navigation_menu', verifyToken, isAdmin, deleteOption);
+router.put('/:key', verifyToken, isAdmin, createOrUpdateOption);
+router.delete('/:key', verifyToken, isAdmin, deleteOption);
 
 module.exports = router;
