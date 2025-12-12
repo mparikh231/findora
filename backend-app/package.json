@@ -15,7 +15,7 @@
     "cors": "^2.8.5",
     "debug": "~2.6.9",
     "dotenv": "^17.2.3",
-    "drizzle-orm": "0.33.0",
+    "drizzle-orm": "^0.45.1",
     "express": "~4.16.1",
     "http-errors": "~1.6.3",
     "jade": "~1.11.0",
