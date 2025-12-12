@@ -1,9 +1,12 @@
 import { useContext, useEffect, useState } from "react";
+import  apiCall  from "../utils/axios"
 import { Link } from "react-router-dom";
 import { UserContext } from "../../src/context/UserContext";
 import { CircleUser } from "lucide-react";
 import SignOutModel from "../components/SignOutModal";
 import CityDropdown from "../components/Cities/CityDropdown";
+import NavigationMenuItem  from "../components/NavigationMenuItem";
+import type { NavigationMenuItem as NavigationMenuItemType, OptionData } from "../types/NavigationMenu";
 
 const Header = () => {
     const userContext = useContext(UserContext);
@@ -11,11 +14,45 @@ const Header = () => {
 
     const [isUserDropdownOpen, setIsUserDropdownOpen] = useState<boolean>(false);
     const [isLogoutModalOpen, setIsLogoutModalOpen] = useState<boolean>(false);
+    const [menuItems, setMenuItems] = useState<NavigationMenuItemType[]>([]);
+    const [isLoadingMenu, setIsLoadingMenu] = useState<boolean>(true);
     const toggleUserDropdown = () => setIsUserDropdownOpen(!isUserDropdownOpen);
 
     useEffect(() => {
         setIsUserDropdownOpen(false);
     }, [isLogoutModalOpen]);
+
+    useEffect(() => {
+        loadNavigationMenu();
+    }, []);
+
+    const loadNavigationMenu = async () => {
+        try {
+            setIsLoadingMenu(true);
+            const response = await apiCall.get('/options/navigation_menu');
+            const { status, data } = response.data;
+            
+            if (status) {
+                const optionData = data as OptionData;
+                if (optionData.optionValue) {
+                    try {
+                        const parsedData = JSON.parse(optionData.optionValue);
+                        setMenuItems(parsedData.items || []);
+                    } catch (error) {
+                        console.error('Error parsing navigation menu:', error);
+                        setMenuItems([]);
+                    }
+                } else {
+                    setMenuItems([]);
+                }
+            }
+        } catch (error) {
+            console.error('Error loading navigation menu:', error);
+            setMenuItems([]);
+        } finally {
+            setIsLoadingMenu(false);
+        }
+    };
 
     return (
         <>
@@ -28,6 +65,9 @@ const Header = () => {
                         </div>
                         <div id="navbarNav">
                             <ul className="nav">
+                                {!isLoadingMenu && menuItems.map((item) => (
+                                    <NavigationMenuItem key={item.id} item={item} />
+                                ))}
                                 <li className="nav-item">
                                     <Link to="/" className="nav-link">Home</Link>
                                 </li>

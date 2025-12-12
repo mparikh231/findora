@@ -19,6 +19,7 @@ import UsersPage from './pages/Admin/UsersPages';
 import CategoriesManagementPage from './pages/Admin/CategoriesManagementPage';
 import StateCityManagementPage from './pages/Admin/StateCityManagementPage';
 import ListingDetailsPage from './pages/ListingsDetailsPage';
+import SettingsPage from './pages/Admin/SettingsPage';
 
 function App() {
 
@@ -45,6 +46,7 @@ function App() {
           <Route index element={<AdminDashboard />} />
           <Route path='profile' element={<ProfilePage />} />
           <Route path='states' element={<StateCityManagementPage />} />
+          <Route path='settings' element={<SettingsPage />} />
           <Route path='listings'>
             <Route index element={<ListingManagementPage />} />
             <Route path=':action' element={<ListingManagementPage />} />
