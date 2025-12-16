@@ -1,4 +1,4 @@
-import { boolean, integer, pgEnum, pgTable, text, timestamp } from "drizzle-orm/pg-core";
+import { boolean, integer, pgEnum, pgTable, text, timestamp, uniqueIndex } from "drizzle-orm/pg-core";
 
 export const userRoles = pgEnum("user_roles", ["admin", "user"]);
 export const listingStatuses = pgEnum("listing_statuses", ["active", "rejected", "pending"]);
@@ -64,3 +64,13 @@ export const options = pgTable("options", {
     optionKey: text("option_key").notNull().unique(),
     optionValue: text("option_value"),
 });
+export const favorites = pgTable("favorites", {
+    id: integer("id").primaryKey().generatedAlwaysAsIdentity(),
+    userId: integer("user_id").notNull().references(() => users.id, { onDelete: "cascade" }),
+    listingId: integer("listing_id").notNull().references(() => listings.id, { onDelete: "cascade" }),
+    createdAt: timestamp("created_at").defaultNow().notNull(),
+},
+(table) => ({
+    uniqueUserListing: uniqueIndex("favorites_user_listing_unique").on(table.userId, table.listingId),
+})
+);

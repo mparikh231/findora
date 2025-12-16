@@ -12,8 +12,10 @@ const verifyToken = (req, res, next) => {
                 return res.status(401).json({ status: false, message: 'Failed to authenticate token' });
             }
             console.log("Decoded JWT:", decoded);
-            req.user_id = decoded.user_id;
-            req.role = decoded.role;
+            req.user = {
+                id: decoded.user_id,
+                role: decoded.role
+            }
             next();
         });
     } catch (error) {
@@ -23,7 +25,7 @@ const verifyToken = (req, res, next) => {
 };
 
 const isAdmin = (req, res, next) => {
-    if (req.role === 'admin') {
+    if (req.user.role === 'admin') {
         next();
     } else {
         return res.status(403).json({ status: false, message: 'Access denied: Admins only' });

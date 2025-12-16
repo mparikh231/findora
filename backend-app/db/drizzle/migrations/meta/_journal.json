@@ -85,6 +85,27 @@
       "when": 1765533224580,
       "tag": "0011_quick_prowler",
       "breakpoints": true
+    },
+    {
+      "idx": 12,
+      "version": "7",
+      "when": 1765862491272,
+      "tag": "0012_bored_forge",
+      "breakpoints": true
+    },
+    {
+      "idx": 13,
+      "version": "7",
+      "when": 1765882258024,
+      "tag": "0013_common_molly_hayes",
+      "breakpoints": true
+    },
+    {
+      "idx": 14,
+      "version": "7",
+      "when": 1765884575019,
+      "tag": "0014_superb_toro",
+      "breakpoints": true
     }
   ]
 }
