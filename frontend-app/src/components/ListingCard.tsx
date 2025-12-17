@@ -2,6 +2,7 @@ import { Link } from "react-router-dom";
 import type { Listing } from "../types/Listing";
 import { formatNumber } from "../utils/helpers";
 import { MapIcon } from "lucide-react";
+import FavouriteButton from "./FavouriteButton";
 
 const ListingCard = ({ listing }: { listing: Listing }) => {
     const imageUrl = listing.featuredImageUrl || "https://dummyimage.com/300x200/000/fff";
@@ -10,7 +11,11 @@ const ListingCard = ({ listing }: { listing: Listing }) => {
         : listing.description;
 
     return (
-        <div className="card h-100">
+        <div className="card h-100 position-relative">
+            {/* ❤️ Favourite Icon */}
+            <div className="position-absolute top-0 end-0 m-2 z-3">
+                <FavouriteButton listingId={listing.id} />
+            </div>
             <Link to={`/listing/${listing.id}`}>
                 <img src={imageUrl} className="card-img-top" alt={listing.title} style={{ height: "200px", objectFit: "cover" }} />
             </Link>

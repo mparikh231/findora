@@ -20,6 +20,7 @@ import CategoriesManagementPage from './pages/Admin/CategoriesManagementPage';
 import StateCityManagementPage from './pages/Admin/StateCityManagementPage';
 import ListingDetailsPage from './pages/ListingsDetailsPage';
 import SettingsPage from './pages/Admin/SettingsPage';
+import FavouritePage from './pages/User/FavouritePage';
 
 function App() {
 
@@ -41,6 +42,7 @@ function App() {
           <Route path='profile' element={<ProfilePage />} />
           <Route path='states' element={<StateCityManagementPage />} />
           <Route path='listings' element={<ListingManagementPage />} />
+          <Route path='favourites' element={<FavouritePage />} />
         </Route>
         <Route path='/admin' element={<AdminLayout />}>
           <Route index element={<AdminDashboard />} />

@@ -86,7 +86,7 @@ const checkIsFavourite = async (req, res) => {
         const user_id = req.user.id;  // ✅ Changed from req.user_id
         const listing_id = Number(req.params.listing_id);
         if (!listing_id) {
-            return res.status(400).json({ message: "Invalid listing ID" });
+            return res.status(400).json({ isFavourite: false, message: "Invalid listing ID" });
         }
         const result = await db.select({ id: favorites.id }).from(favorites).where(and(eq(favorites.userId, user_id), eq(favorites.listingId, listing_id))).limit(1);
         return res.status(200).json({ isFavourite: result.length > 0, message: "Favourite status checked successfully" });

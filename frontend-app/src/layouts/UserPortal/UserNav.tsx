@@ -1,14 +1,16 @@
-import { CircleGauge, CircleStar, CircleUser, LogOut, User } from "lucide-react";
+import { CircleGauge, CircleStar, CircleUser, HeartPlus, LogOut, User } from "lucide-react";
 import { Link } from "react-router-dom";
 import SignOutModal from "../../components/SignOutModal";
 import { useContext, useState } from "react";
 import { UserContext } from "../../../src/context/UserContext";
+import FavouriteButton, { useFavourite } from "../../components/FavouriteButton";
 
 const UserNav = () => {
 
     const userContext = useContext(UserContext);
     const { user } = userContext || {};
     const [isSignOutModalOpen, setSignOutModalOpen] = useState<boolean>(false);
+    const { count } = useFavourite(0);
 
     return <div className="card h-100">
         <ul className="list-group list-group-flush">
@@ -27,6 +29,13 @@ const UserNav = () => {
                 <Link to="/user" className="text-decoration-none d-flex align-items-center gap-2">
                     <CircleGauge size={18} />
                     Dashboard
+                </Link>
+            </li>
+            <li className="list-group-item">
+                <Link to="/user/favourites" className="text-decoration-none d-flex align-items-center gap-2">
+                    <HeartPlus size={18} />
+                    Favourites
+                    {count > 0 && <span className="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">{count}</span>}
                 </Link>
             </li>
             <li className="list-group-item">

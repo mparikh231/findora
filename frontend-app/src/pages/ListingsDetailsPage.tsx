@@ -6,6 +6,7 @@ import Banner from "../layouts/Banner";
 import { formatDate, formatNumber } from "../utils/helpers";
 import { UserContext } from "../context/UserContext";
 import { MapIcon } from "lucide-react";
+import FavouriteButton from "../components/FavouriteButton";
 
 const ListingDetailsPage = () => {
     const { id: listingId } = useParams();
@@ -77,8 +78,6 @@ const ListingDetailsPage = () => {
 
     if (error || !listing) {
         return (
-            <section className="listing-details-page">
-                <Banner title="Listing Not Found" size="small" />
                 <div className="container py-5">
                     <div className="alert alert-danger" role="alert">
                         <h5 className="alert-heading">Error!</h5>
@@ -86,7 +85,6 @@ const ListingDetailsPage = () => {
                     </div>
                     <button onClick={() => navigate(-1)} className="btn btn-dark">Go Back</button>
                 </div>
-            </section>
         );
     }
 
@@ -97,7 +95,12 @@ const ListingDetailsPage = () => {
 
     return (
         <section className="listing-details-page">
-            <Banner title={listing.title} size="small" />
+            <Banner title={listing.title} size="small"/>
+
+            <div className="container mt-3 d-flex justify-content-between align-items-center">
+                    <h3>{listing.title}</h3>
+                    <FavouriteButton listingId={listing.id} />
+                </div>
 
             <div className="container my-5">
                 <div className="row">
