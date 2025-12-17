@@ -4,39 +4,49 @@ import { Heart } from "lucide-react";
 
 interface Props {
     listingId: number;
-    onToggle?: (isFavourite: boolean) => void;
+    onFavouriteChange?: (isFavourite: boolean) => void;
 }
 
-export const useFavourite = (listingId: number, onToggle?: (isFavourite: boolean) => void) => {
+export const useFavourite = (listingId: number) => {
     const [isFavourite, setIsFavourite] = useState(false);
     const [loading, setLoading] = useState(true);
     const [count, setCount] = useState<number>(0);
 
-    useEffect(() => {
-        const fetchFavourite = async () => {
-            try {
-                const res = await favService.checkFavourite(listingId);
-                setIsFavourite(res.data.isFavourite);
-            } catch (error) {
-                setIsFavourite(false);
-            } finally {
-                setLoading(false);
-            }
-        };
-        fetchFavourite();
-    }, [listingId]);
+    // Fetch favorite status for a specific listing
+    const fetchFavouriteStatus = async (id: number) => {
+        if (!id || id <= 0) {
+            setIsFavourite(false);
+            setLoading(false);
+            return;
+        }
+        try {
+            const res = await favService.checkFavourite(id);
+            setIsFavourite(res.isFavourite);
+        } catch (error) {
+            setIsFavourite(false);
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    // Fetch favorite count from backend
+    const fetchFavouriteCount = async () => {
+        try {
+            const res = await favService.getFavouriteCount();
+            setCount(res.count);
+        } catch (error) {
+            console.error("Error fetching favorite count:", error);
+        }
+    };
 
     useEffect(() => {
-        const fetchFavouriteCount = async () => {
-            try {
-                const res = await favService.getFavouriteCount();
-                setCount(res.count || 0);
-            } catch (error) {
-                setCount(0);
-            }
-        };
-        fetchFavouriteCount();
-    }, []);
+        if (listingId > 0) {
+            fetchFavouriteStatus(listingId);
+        } else {
+            // If listingId is 0, just fetch count (for navbar)
+            fetchFavouriteCount();
+        }
+    }, [listingId]);
 
     const toggleFavourite = async () => {
         if (isFavourite === null) return null;
@@ -44,33 +54,45 @@ export const useFavourite = (listingId: number, onToggle?: (isFavourite: boolean
             if (isFavourite) {
                 await favService.removeFavourite(listingId);
                 setIsFavourite(false);
-                setCount(prev => prev - 1);
-                onToggle?.(false);
             } else {
                 await favService.addFavourite(listingId);
                 setIsFavourite(true);
-                setCount(prev => prev + 1);
-                onToggle?.(true);
             }
+            // Refresh count after toggling
+            await fetchFavouriteCount();
         } catch (error: any) {
             if (error.response?.status === 409) {
-                // Handle conflict (e.g., user already favourited)
                 setIsFavourite(true);
-            } else {
-                console.error("Error toggling favourite:", error);
             }
         }
-    }
+    };
 
-    return { isFavourite, toggleFavourite, loading, count, setCount };
+    return { isFavourite, toggleFavourite, loading, count, setCount, fetchFavouriteStatus, fetchFavouriteCount };
 };
 
-const FavouriteButton = ({ listingId, onToggle }: Props) => {
-    const { isFavourite, toggleFavourite, loading, count } = useFavourite(listingId);
+const FavouriteButton = ({ listingId, onFavouriteChange }: Props) => {
+    const { isFavourite, toggleFavourite, loading } = useFavourite(listingId);
+    
+    const handleToggle = async () => {
+        await toggleFavourite();
+        if (onFavouriteChange) {
+            onFavouriteChange(!isFavourite);
+        }
+    };
+
     if (isFavourite === null) return null;
+    
     return (
-        <button onClick={(e) => {e.preventDefault(); toggleFavourite();}} className="btn p-0 border-0 bg-transparent">
-              <Heart size={22} fill={isFavourite ? "red" : "none"} color={isFavourite ? "red" : "gray"} />
+        <button 
+            onClick={(e) => { e.preventDefault(); handleToggle(); }} 
+            className="btn p-0 border-0 bg-transparent"
+            disabled={loading}
+        >
+            <Heart 
+                size={22} 
+                fill={isFavourite ? "red" : "none"} 
+                color={isFavourite ? "red" : "gray"} 
+            />
         </button>
     );
 };

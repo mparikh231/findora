@@ -14,7 +14,7 @@ const ListingCard = ({ listing }: { listing: Listing }) => {
         <div className="card h-100 position-relative">
             {/* ❤️ Favourite Icon */}
             <div className="position-absolute top-0 end-0 m-2 z-3">
-                <FavouriteButton listingId={listing.id} />
+                {listing?.id &&<FavouriteButton listingId={listing.id} />}
             </div>
             <Link to={`/listing/${listing.id}`}>
                 <img src={imageUrl} className="card-img-top" alt={listing.title} style={{ height: "200px", objectFit: "cover" }} />

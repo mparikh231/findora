@@ -1,16 +1,38 @@
 import { CircleGauge, CircleStar, CircleUser, HeartPlus, LogOut, User } from "lucide-react";
 import { Link } from "react-router-dom";
 import SignOutModal from "../../components/SignOutModal";
-import { useContext, useState } from "react";
+import { useContext, useState, useEffect } from "react";
 import { UserContext } from "../../../src/context/UserContext";
-import FavouriteButton, { useFavourite } from "../../components/FavouriteButton";
+import * as favService from "../../utils/favourite.service";
 
 const UserNav = () => {
-
     const userContext = useContext(UserContext);
     const { user } = userContext || {};
     const [isSignOutModalOpen, setSignOutModalOpen] = useState<boolean>(false);
-    const { count } = useFavourite(0);
+    const [favoriteCount, setFavoriteCount] = useState<number>(0);
+    const [loading, setLoading] = useState(true);
+
+    // Fetch favorite count on component mount
+    useEffect(() => {
+        fetchFavoriteCount();
+    }, []);
+
+    const fetchFavoriteCount = async () => {
+        try {
+            const res = await favService.getFavouriteCount();
+            setFavoriteCount(res.count || 0);
+        } catch (error) {
+            console.error("Error fetching favorite count:", error);
+            setFavoriteCount(0);
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    // Listen for favorite changes
+    const handleFavoriteChange = (count: number) => {
+        setFavoriteCount(count);
+    };
 
     return <div className="card h-100">
         <ul className="list-group list-group-flush">
@@ -31,11 +53,15 @@ const UserNav = () => {
                     Dashboard
                 </Link>
             </li>
-            <li className="list-group-item">
+            <li className="list-group-item position-relative">
                 <Link to="/user/favourites" className="text-decoration-none d-flex align-items-center gap-2">
                     <HeartPlus size={18} />
                     Favourites
-                    {count > 0 && <span className="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">{count}</span>}
+                    {favoriteCount > 0 && (
+                        <span className="position-absolute top-50 start-100 translate-middle badge rounded-pill bg-danger">
+                            {favoriteCount}
+                        </span>
+                    )}
                 </Link>
             </li>
             <li className="list-group-item">
@@ -51,7 +77,11 @@ const UserNav = () => {
                 </Link>
             </li>
             <li className="list-group-item">
-                <a className="text-decoration-none d-flex align-items-center gap-2" onClick={(e) => { e.preventDefault(); setSignOutModalOpen(true); }} href="#">
+                <a 
+                    className="text-decoration-none d-flex align-items-center gap-2" 
+                    onClick={(e) => { e.preventDefault(); setSignOutModalOpen(true); }} 
+                    href="#"
+                >
                     <LogOut size={18} />
                     Sign Out
                 </a>
@@ -61,4 +91,4 @@ const UserNav = () => {
         <SignOutModal isOpen={isSignOutModalOpen} onModalChange={setSignOutModalOpen} />
     </div>;
 }
-export default UserNav; 
+export default UserNav;

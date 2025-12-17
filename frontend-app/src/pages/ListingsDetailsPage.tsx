@@ -9,7 +9,8 @@ import { MapIcon } from "lucide-react";
 import FavouriteButton from "../components/FavouriteButton";
 
 const ListingDetailsPage = () => {
-    const { id: listingId } = useParams();
+    const { id } = useParams<{ id: string }>();
+    const listingId = id ? Number(id) : null;
     const navigate = useNavigate();
     const userContext = useContext(UserContext);
     const { user } = userContext || {};
@@ -21,6 +22,11 @@ const ListingDetailsPage = () => {
 
     useEffect(() => {
         const fetchListing = async () => {
+            if (!listingId || isNaN(listingId)) {
+                setError("Invalid listing ID");
+                setIsLoading(false);
+                return;
+            }
             try {
                 setIsLoading(true);
                 setError(null);
@@ -99,7 +105,7 @@ const ListingDetailsPage = () => {
 
             <div className="container mt-3 d-flex justify-content-between align-items-center">
                     <h3>{listing.title}</h3>
-                    <FavouriteButton listingId={listing.id} />
+                    {listing?.id && <FavouriteButton listingId={listing.id} />}
                 </div>
 
             <div className="container my-5">

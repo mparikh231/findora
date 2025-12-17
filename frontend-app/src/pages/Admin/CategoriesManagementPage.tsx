@@ -196,7 +196,7 @@ const CategoriesManagementPage = () => {
                                             <tr key={`category-tr-${category.id}-${index}`}>
                                                 <td className="text-center">{category.id}</td>
                                                 <td>{category.name}</td>
-                                                <td>{category.parentCategoryName ? category.parentCategoryName.name : '--'}</td>
+                                                <td>{category.parentCategoryName || '--'}</td>
                                                 <td>{limitString(category.description)}</td>
                                                 <td>{formatDate(category.createdAt)}</td>
                                                 <td className="text-center">
