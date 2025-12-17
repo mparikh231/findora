@@ -89,6 +89,7 @@ const FavouritePage = () => {
                 ) : (
                     <div className="row g-4">
                         {favourites.map((listing) => {
+                            
                             const imageUrl = listing.featuredImageUrl || "https://dummyimage.com/300x200/000/fff";
                             const description = listing.description || "";
                             const truncatedDescription = description.length > 100
@@ -108,7 +109,7 @@ const FavouritePage = () => {
                                             />
                                         </div>
                                         <button 
-                                            onClick={() => navigate(`/listing/${listing.id}`)}
+                                            onClick={() => navigate(`/listing/${listing.listingId}`)}
                                             className="btn btn-link text-decoration-none p-0"
                                         >
                                             <img 
@@ -119,14 +120,15 @@ const FavouritePage = () => {
                                             />
                                         </button>
                                         <div className="card-body d-flex flex-column">
-                                            <h5 className="card-title mb-2">{listing.title}</h5>
+                                            <h5 className="card-title mb-2">{listing.listingTitle}</h5>
+                                            <h6 className="card-title mb-2">{listing.listingDescription}</h6>
                                             <p className="card-text text-muted small mb-2">{truncatedDescription}</p>
                                             <div className="mt-auto">
                                                 <span className="text-success fw-bold d-block mb-2">
-                                                    ₹{formatNumber(listing.price)}
+                                                    ₹{formatNumber(listing.listingPrice)}
                                                 </span>
                                                 <button 
-                                                    onClick={() => navigate(`/listing/${listing.id}`)}
+                                                    onClick={() => navigate(`/listing/${listing.listingId}`)}
                                                     className="btn btn-outline-primary w-100 btn-sm"
                                                 >
                                                     View Details

@@ -7,6 +7,11 @@ export interface Favourite {
     description: string;
     title: string;
     price: number;
+    favoriteId: number;
+    favoriteCreatedAt: Date;
+    listingTitle: string;
+    listingDescription: string;
+    listingPrice: number;
 }
 export interface FavouriteResponse {
     isFavourite: boolean;
