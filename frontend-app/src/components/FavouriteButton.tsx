@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import * as favService from "../utils/favourite.service";
 import { Heart } from "lucide-react";
+import { toast } from "react-toastify";
 
 interface Props {
     listingId: number;
@@ -53,9 +54,11 @@ export const useFavourite = (listingId: number) => {
         try {
             if (isFavourite) {
                 await favService.removeFavourite(listingId);
+                toast.success("Removed from favourites");
                 setIsFavourite(false);
             } else {
                 await favService.addFavourite(listingId);
+                toast.success("Added to favourites");
                 setIsFavourite(true);
             }
             // Refresh count after toggling

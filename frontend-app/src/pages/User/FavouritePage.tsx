@@ -35,6 +35,7 @@ const FavouritePage = () => {
 
     const handleRemoveFavourite = async (listingId: number) => {
         try {
+            await apiCall.delete(`/favourites/${listingId}`);
             setFavourites(favourites.filter(f => f.listingId !== listingId));
         } catch (error) {
             console.error("Error removing favourite:", error);
@@ -96,14 +97,14 @@ const FavouritePage = () => {
                                 ? description.substring(0, 100) + "..."
                                 : description;
                             return (
-                                <div key={listing.id} className="col-md-6 col-lg-4">
+                                <div key={listing.listingId} className="col-md-6 col-lg-4">
                                     <div className="card h-100 position-relative shadow-sm">
                                         <div className="position-absolute top-0 end-0 p-2 z-3">
                                             <FavouriteButton 
-                                                listingId={listing.id}
+                                                listingId={listing.listingId}
                                                 onFavouriteChange={(isFav) => {
                                                     if (!isFav) {
-                                                        handleRemoveFavourite(listing.id);
+                                                        handleRemoveFavourite(listing.listingId);
                                                     }
                                                 }}
                                             />
@@ -123,7 +124,7 @@ const FavouritePage = () => {
                                             <h5 className="card-title mb-2">{listing.listingTitle}</h5>
                                             <h6 className="card-title mb-2">{listing.listingDescription}</h6>
                                             <p className="card-text text-muted small mb-2">{truncatedDescription}</p>
-                                            <div className="mt-auto">
+                                            <div className="mt-auto d-flex flex-column">
                                                 <span className="text-success fw-bold d-block mb-2">
                                                     ₹{formatNumber(listing.listingPrice)}
                                                 </span>
@@ -132,6 +133,14 @@ const FavouritePage = () => {
                                                     className="btn btn-outline-primary w-100 btn-sm"
                                                 >
                                                     View Details
+                                                </button>
+                                                <button 
+                                                    onClick={() => handleRemoveFavourite(listing.listingId)}
+                                                    className="btn btn-outline-danger w-100 btn-sm mt-2"
+                                                    title="Remove from Favourites"
+                                                >
+                                                   <Trash2 className="me-1" size={16} />
+                                                   Remove
                                                 </button>
                                             </div>
                                         </div>
