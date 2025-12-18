@@ -23,12 +23,17 @@ const NavigationMenuManager = () => {
     const loadNavigationMenu = async () => {
         try {
             setIsLoading(true);
-            const response = await apiCall.get('/navigation_menu');
+            const response = await apiCall.get('/options/navigation_menu');
             const { status, data } = response.data;
             
             if (status && data && data.optionValue) {
-                const menuData: NavigationMenuData = JSON.parse(data.optionValue);
-                setMenuItems(menuData.items || []);
+                try {
+                    const menuData: NavigationMenuData = JSON.parse(data.optionValue);
+                    setMenuItems(menuData.items || []);
+                } catch (parseError) {
+                    console.error('Error parsing menu data:', parseError);
+                    setMenuItems([]);
+                }
             } else {
                 setMenuItems([]);
             }
@@ -52,9 +57,9 @@ const NavigationMenuManager = () => {
 
             await apiCall.put('/options/navigation_menu', payload);
             toast.success('Navigation menu saved successfully!');
-        } catch (error) {
+        } catch (error: any) {
             console.error('Error saving navigation menu:', error);
-            toast.error('Failed to save navigation menu. Please try again.');
+            toast.error(error.response?.data?.message || 'Failed to save navigation menu. Please try again.');
         } finally {
             setIsSaving(false);
         }
@@ -158,7 +163,7 @@ const NavigationMenuManager = () => {
             <div key={item.id}>
                 <div 
                     className="d-flex align-items-center justify-content-between p-3 border-bottom"
-                    style={{ marginLeft: indent }}
+                    style={{ marginLeft: indent, backgroundColor: level > 0 ? '#f9f9f9' : 'transparent' }}
                 >
                     <div className="d-flex align-items-center gap-2">
                         {level > 0 && <CornerDownRight size={16} className="text-muted" />}
@@ -181,6 +186,7 @@ const NavigationMenuManager = () => {
                             onClick={() => moveItem(item.id, 'up')}
                             disabled={index === 0}
                             title="Move up"
+                            type="button"
                         >
                             <ChevronUp size={16} />
                         </button>
@@ -189,6 +195,7 @@ const NavigationMenuManager = () => {
                             onClick={() => moveItem(item.id, 'down')}
                             disabled={index === totalItems - 1}
                             title="Move down"
+                            type="button"
                         >
                             <ChevronDown size={16} />
                         </button>
@@ -196,6 +203,7 @@ const NavigationMenuManager = () => {
                             className="btn btn-sm btn-link text-dark"
                             onClick={() => setEditingItem(item)}
                             title="Edit"
+                            type="button"
                         >
                             <Edit size={16} />
                         </button>
@@ -206,6 +214,7 @@ const NavigationMenuManager = () => {
                                 setIsConfirmModalOpen(true);
                             }}
                             title="Delete"
+                            type="button"
                         >
                             <Trash size={16} />
                         </button>
@@ -228,6 +237,11 @@ const NavigationMenuManager = () => {
                         className="btn btn-sm btn-dark d-flex align-items-center gap-1"
                         onClick={() => setShowAddForm(true)}
                         disabled={showAddForm || editingItem !== null}
+                        type="button"
+                        style={{
+                            opacity: showAddForm || editingItem !== null ? 0.5 : 1,
+                            cursor: showAddForm || editingItem !== null ? 'not-allowed' : 'pointer'
+                        }}
                     >
                         <Plus size={16} /> Add Menu Item
                     </button>
@@ -241,7 +255,15 @@ const NavigationMenuManager = () => {
                         </div>
                     ) : menuItems.length === 0 ? (
                         <div className="text-center p-4 text-muted">
-                            No menu items found. Click "Add Menu Item" to get started.
+                            <p>No menu items found. Click "Add Menu Item" to get started.</p>
+                            <button
+                                className="btn btn-sm btn-outline-primary"
+                                onClick={() => setShowAddForm(true)}
+                                disabled={editingItem !== null}
+                                type="button"
+                            >
+                                <Plus size={14} className="me-1" /> Add First Menu Item
+                            </button>
                         </div>
                     ) : (
                         <div>
@@ -257,6 +279,7 @@ const NavigationMenuManager = () => {
                             className="btn btn-primary d-flex align-items-center gap-1"
                             onClick={saveNavigationMenu}
                             disabled={isSaving}
+                            type="button"
                         >
                             <Save size={16} />
                             {isSaving ? 'Saving...' : 'Save Navigation Menu'}
@@ -265,15 +288,23 @@ const NavigationMenuManager = () => {
                 )}
             </Card>
 
-            {(showAddForm || editingItem) && (
+            {/* Show form conditionally */}
+            {showAddForm && (
+                <NavigationMenuItemForm
+                    menuItems={menuItems}
+                    editingItem={null}
+                    onSave={addMenuItem}
+                    onCancel={() => setShowAddForm(false)}
+                />
+            )}
+
+            {/* Show form for editing */}
+            {editingItem && (
                 <NavigationMenuItemForm
                     menuItems={menuItems}
                     editingItem={editingItem}
-                    onSave={editingItem ? updateMenuItem : addMenuItem}
-                    onCancel={() => {
-                        setShowAddForm(false);
-                        setEditingItem(null);
-                    }}
+                    onSave={updateMenuItem}
+                    onCancel={() => setEditingItem(null)}
                 />
             )}
 

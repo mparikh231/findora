@@ -26,6 +26,7 @@ const NavigationMenuItemForm = ({ menuItems, editingItem, onSave, onCancel }: Na
     const [formData, setFormData] = useState<NavigationMenuItemFormData>(defaultFormData);
     const [categories, setCategories] = useState<CategoryData[]>([]);
     const [isLoadingCategories, setIsLoadingCategories] = useState<boolean>(false);
+    const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
 
     useEffect(() => {
         loadCategories();
@@ -40,6 +41,8 @@ const NavigationMenuItemForm = ({ menuItems, editingItem, onSave, onCancel }: Na
                 openInNewTab: editingItem.openInNewTab,
                 parentId: undefined
             });
+        } else {
+            setFormData(defaultFormData);
         }
     }, [editingItem]);
 
@@ -63,7 +66,7 @@ const NavigationMenuItemForm = ({ menuItems, editingItem, onSave, onCancel }: Na
         return `nav-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
     };
 
-    const handleSubmit = (e: React.FormEvent) => {
+    const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
 
         // Validation
@@ -82,20 +85,26 @@ const NavigationMenuItemForm = ({ menuItems, editingItem, onSave, onCancel }: Na
             return;
         }
 
-        // Create menu item
-        const menuItem: NavigationMenuItem = {
-            id: formData.id || generateId(),
-            label: formData.label.trim(),
-            type: formData.type,
-            categoryId: formData.type === 'category' ? Number(formData.categoryId) : undefined,
-            url: formData.type === 'custom' ? formData.url?.trim() : undefined,
-            openInNewTab: formData.openInNewTab,
-            order: editingItem ? editingItem.order : menuItems.length + 1,
-            children: editingItem ? editingItem.children : []
-        };
+        try {
+            setIsSubmitting(true);
 
-        onSave(menuItem, formData.parentId);
-        setFormData(defaultFormData);
+            // Create menu item
+            const menuItem: NavigationMenuItem = {
+                id: formData.id || generateId(),
+                label: formData.label.trim(),
+                type: formData.type,
+                categoryId: formData.type === 'category' ? Number(formData.categoryId) : undefined,
+                url: formData.type === 'custom' ? formData.url?.trim() : undefined,
+                openInNewTab: formData.openInNewTab,
+                order: editingItem ? editingItem.order : menuItems.length + 1,
+                children: editingItem ? editingItem.children : []
+            };
+
+            onSave(menuItem, formData.parentId);
+            setFormData(defaultFormData);
+        } finally {
+            setIsSubmitting(false);
+        }
     };
 
     const getAllMenuItemsFlat = (items: NavigationMenuItem[]): NavigationMenuItem[] => {
@@ -114,15 +123,15 @@ const NavigationMenuItemForm = ({ menuItems, editingItem, onSave, onCancel }: Na
     );
 
     return (
-        <Card className="mt-3">
-            <CardHeader>
-                {editingItem ? 'Edit Menu Item' : 'Add New Menu Item'}
+        <Card className="mt-4 shadow-sm">
+            <CardHeader className="bg-light">
+                <h5 className="mb-0">{editingItem ? 'Edit Menu Item' : 'Add New Menu Item'}</h5>
             </CardHeader>
             <form onSubmit={handleSubmit}>
                 <CardBody>
                     <div className="row">
                         <div className="col-md-6 mb-3">
-                            <label className="form-label">Menu Item Type *</label>
+                            <label className="form-label fw-semibold">Menu Item Type *</label>
                             <div className="d-flex gap-3">
                                 <div className="form-check">
                                     <input
@@ -156,7 +165,7 @@ const NavigationMenuItemForm = ({ menuItems, editingItem, onSave, onCancel }: Na
                         </div>
 
                         <div className="col-md-6 mb-3">
-                            <label htmlFor="label" className="form-label">Label *</label>
+                            <label htmlFor="label" className="form-label fw-semibold">Label *</label>
                             <input
                                 type="text"
                                 className="form-control"
@@ -165,12 +174,13 @@ const NavigationMenuItemForm = ({ menuItems, editingItem, onSave, onCancel }: Na
                                 onChange={(e) => setFormData({ ...formData, label: e.target.value })}
                                 placeholder="e.g., Home, About Us"
                                 required
+                                autoFocus
                             />
                         </div>
 
                         {formData.type === 'category' && (
                             <div className="col-md-6 mb-3">
-                                <label htmlFor="category" className="form-label">Select Category *</label>
+                                <label htmlFor="category" className="form-label fw-semibold">Select Category *</label>
                                 <select
                                     className="form-select"
                                     id="category"
@@ -195,14 +205,14 @@ const NavigationMenuItemForm = ({ menuItems, editingItem, onSave, onCancel }: Na
                                     ))}
                                 </select>
                                 {isLoadingCategories && (
-                                    <small className="text-muted">Loading categories...</small>
+                                    <small className="text-muted d-block mt-2">Loading categories...</small>
                                 )}
                             </div>
                         )}
 
                         {formData.type === 'custom' && (
                             <div className="col-md-6 mb-3">
-                                <label htmlFor="url" className="form-label">URL *</label>
+                                <label htmlFor="url" className="form-label fw-semibold">URL *</label>
                                 <input
                                     type="text"
                                     className="form-control"
@@ -212,14 +222,14 @@ const NavigationMenuItemForm = ({ menuItems, editingItem, onSave, onCancel }: Na
                                     placeholder="e.g., /about, /contact"
                                     required
                                 />
-                                <small className="text-muted">
+                                <small className="text-muted d-block mt-2">
                                     Use relative paths (e.g., /about) or full URLs (e.g., https://example.com)
                                 </small>
                             </div>
                         )}
 
                         <div className="col-md-6 mb-3">
-                            <label htmlFor="parent" className="form-label">Parent Menu Item</label>
+                            <label htmlFor="parent" className="form-label fw-semibold">Parent Menu Item</label>
                             <select
                                 className="form-select"
                                 id="parent"
@@ -235,7 +245,7 @@ const NavigationMenuItemForm = ({ menuItems, editingItem, onSave, onCancel }: Na
                                 ))}
                             </select>
                             {editingItem && (
-                                <small className="text-muted">
+                                <small className="text-muted d-block mt-2">
                                     Cannot change parent while editing. Delete and recreate to move.
                                 </small>
                             )}
@@ -257,12 +267,21 @@ const NavigationMenuItemForm = ({ menuItems, editingItem, onSave, onCancel }: Na
                         </div>
                     </div>
                 </CardBody>
-                <CardFooter className="d-flex gap-2">
-                    <button type="submit" className="btn btn-dark d-flex align-items-center gap-1">
+                <CardFooter className="d-flex gap-2 bg-light">
+                    <button 
+                        type="submit" 
+                        className="btn btn-dark d-flex align-items-center gap-2"
+                        disabled={isSubmitting}
+                    >
                         <Save size={16} />
-                        {editingItem ? 'Update' : 'Add'} Menu Item
+                        {isSubmitting ? 'Saving...' : (editingItem ? 'Update' : 'Add')} Menu Item
                     </button>
-                    <button type="button" className="btn btn-secondary d-flex align-items-center gap-1" onClick={onCancel}>
+                    <button 
+                        type="button" 
+                        className="btn btn-secondary d-flex align-items-center gap-2" 
+                        onClick={onCancel}
+                        disabled={isSubmitting}
+                    >
                         <X size={16} />
                         Cancel
                     </button>
