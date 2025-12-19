@@ -4,6 +4,7 @@ export const checkFavourite = async (listingId: number) => {
     const response = await apiCall.get(`/favourites/check/${listingId}`);
     return response.data;
 };
+
 export const addFavourite = async (listingId: number) => {
     const response = await apiCall.post(`/favourites/${listingId}`);
     return response.data;
